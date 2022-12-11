@@ -2,6 +2,8 @@ import numpy as np
 import math
 import constants
 
+pi = np.pi
+
 def rk4method_for_car(ic_car, times):
     N = len(times)
     h = (times[-1] - times[0]) / N
@@ -19,28 +21,49 @@ def rk4method_for_car(ic_car, times):
     new_car = Car(w_i[0:3], w_i[3:6])
     return new_car
 
-def normalize_vel(v):
+def normalize(v):
     if np.linalg.norm(v) != 0:
-        v = (v / np.linalg.norm(v)) * constants.car_velocity
+        v = (v / np.linalg.norm(v))
     return v
 
+def ang_between(a, b):
+    norm_a = np.linalg.norm(a)
+    norm_b = np.linalg.norm(b)
+    cross = np.cross(a, b)[2]
+    return np.arcsin(cross / (norm_a * norm_b))
+
 class Car:
-    def __init__(self, r, v, ster_ang):
-        self.r = r
-        self.v = normalize_vel(v)
-        self.ster_ang = ster_ang
-        self.length = constants.car_length
+    def __init__(self, x, v, theta, ang_vel = 0):
+        self.x = x
+        self.v = v
+        self.theta = theta
+        self.ang_vel = ang_vel
 
     def dynamics(self):
-        r_dot = self.v
-        ang_vel = constants.car_velocity * math.tan(self.ster_ang) / constants.car_length
-        v_dot = np.cross(ang_vel, self.v)
-        return np.array([r_dot, v_dot])
+        x_dot = self.v
+        v_dot = np.cross(self.ang_vel, self.v)
+        theta_dot = self.ang_vel
+        return np.array([x_dot, v_dot, theta_dot])
 
-    def propogate(self, t_init, t_final, h):
-        times = np.linspace(t_init, t_final, h)
+    def propogate(self, des_node):
+        des_direction = des_node - self.x
+        theta = ang_between(des_direction, self.v)
+        dist_between_nodes = np.linalg.norm(des_direction)
+        omega = 2 * constants.car_velocity * np.sin(theta) / dist_between_nodes
+        if abs(omega) > constants.max_turn_rate:
+            return "des_node invalid"
+        self.ang_vel = omega
+        # distance = 2 * theta * (constants.car_velocity / omega)
+        time_taken = 2 * theta / omega
+        distance = time_taken * constants.car_velocity
+        times = np.linspace(0, time_taken, constants.N_for_rk4)
         new_car = rk4method_for_car(self, times)
-        self.x = new_car.x
-        self.y = new_car.y
+        return Car()
+        
+        
+
+
+
+
 
 
