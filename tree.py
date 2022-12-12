@@ -25,9 +25,6 @@ class Tree():
     def __init__(self, root_node):
         self.root_node = root_node
         self.node_list = [root_node]
-    
-    def add_node(self, parent_node, child_node):
-        child_node = parent_node.add_child(child_node)
 
     def find_nearest(self, q_rand):
         nearest_node = self.root_node
@@ -46,8 +43,7 @@ class Tree():
                 neighbour_nodes.append(node)
         return neighbour_nodes
     
-    def choose_parent(self, rand_node):
-        neighbourhood = self.get_nodes_in_region(rand_node)
+    def choose_parent(self, rand_node, neighbourhood):
         min_cost = float('inf')
         parent_node = "unsure"
         for node in neighbourhood:
@@ -59,9 +55,34 @@ class Tree():
             if new_cost < min_cost:
                 min_cost = new_cost
                 parent_node = node
-        rand_node = Node(new_car.x, new_car.v, new_car.theta, parent=parent_node, cost=min_cost)
-        parent_node.child_list.append(rand_node)
+        rand_node = Node(new_car.x, new_car.v, new_car.theta, parent=None, cost=min_cost)
         return parent_node, rand_node
+    
+    def insert_node(self, parent_node, child_node):
+        parent_node.child_list.append(child_node)
+        child_node.parent = parent_node
+        self.node_list.append(child_node)
+    
+    def remove_connection(self, parent_node, child_node):
+        parent_node.child_list.remove(child_node)
+        child_node.parent = None 
+        self.node_list.remove(child_node)
+
+    def rewire(self, neighbourhood, child_node):
+        for node in neighbourhood:
+            current_cost = node.cost
+            try:
+                new_car, distance = child_node.propogate(node)
+            except:
+                continue
+            new_cost = child_node.cost + distance
+            if new_cost > current_cost:
+                continue
+            old_parent = node.parent
+            self.remove_connection(old_parent, node)
+            self.insert_node(child_node, node)
+
+
 
 
 
