@@ -29,6 +29,8 @@ def ang_between(a, b):
     norm_a = np.linalg.norm(a)
     norm_b = np.linalg.norm(b)
     cross = np.cross(a, b)
+    if abs(cross) < 1.0e-17:
+        return 0
     return np.arcsin(cross / (norm_a * norm_b))
 
 def rotate(v, theta, length):
@@ -40,7 +42,7 @@ def rotate(v, theta, length):
 class Car:
     def __init__(self, x, v, theta):
         self.x = x
-        self.v = v
+        self.v = normalize(v) * constants.car_velocity
         self.theta = theta
 
     def dynamics(self, omega):
@@ -61,10 +63,8 @@ class Car:
         else:
             time_taken = dist_between_nodes / constants.car_velocity
         distance = time_taken * constants.car_velocity
-        # times = np.linspace(0, time_taken, constants.N_for_rk4)
-        # new_x, new_v = rk4method_for_car(self, omega, times)
         new_v = rotate(self.v, 2 * alpha, constants.car_velocity)
-        new_theta = self.theta + self.ang_vel * time_taken
+        new_theta = self.theta + omega * time_taken
         new_x = des_node.x
         new_car = Car(new_x, new_v, new_theta)
         return new_car, distance

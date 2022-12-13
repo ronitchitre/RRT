@@ -20,13 +20,19 @@ class Node(car_lib.Car):
         child_node = Node(new_car.x, new_car.v, new_car.theta, parent=self, cost=cost_child) #might replace new_car.x with child_node.x
         self.child_list.append(child_node)
         return child_node 
+    
+    def set_prop(self, x, v, theta, cost):
+        self.x = x
+        self.v = v
+        self.theta = theta
+        self.cost = cost
 
 
 class Tree():
     def __init__(self, root_node):
         self.root_node = root_node
         self.node_list = [root_node]
-        self.coord_list = [root_node.x]
+        self.coord_list = [list(root_node.x)]
 
     def find_nearest(self, q_rand):
         nearest_node = self.root_node
@@ -60,20 +66,20 @@ class Tree():
                 min_cost = new_cost
                 parent_node = node
         if path_possible:
-            rand_node = Node(new_car.x, new_car.v, new_car.theta, parent=None, cost=min_cost)
+            rand_node.set_prop(new_car.x, new_car.v, new_car.theta, min_cost)
             return parent_node
     
     def insert_node(self, parent_node, child_node):
         parent_node.child_list.append(child_node)
         child_node.parent = parent_node
         self.node_list.append(child_node)
-        self.coord_list.append(child_node.x)
+        self.coord_list.append(list(child_node.x))
     
     def remove_connection(self, parent_node, child_node):
         parent_node.child_list.remove(child_node)
         child_node.parent = None 
         self.node_list.remove(child_node)
-        self.coord_list.remove(child_node.x)
+        self.coord_list.remove(list(child_node.x))
 
     def rewire(self, neighbourhood, child_node):
         for node in neighbourhood:
@@ -88,6 +94,13 @@ class Tree():
             old_parent = node.parent
             self.remove_connection(old_parent, node)
             self.insert_node(child_node, node)
+    
+    def get_path(self, cur_node):
+        path = np.array([cur_node.x])
+        while cur_node.parent is not None:
+            cur_node = cur_node.parent
+            path = np.vstack([path, cur_node.x])
+        return path
 
 
 
@@ -97,7 +110,7 @@ def random_config(tree):
     x_coord = round(uniform(0, constants.dimension_field[0]), 3)
     y_coord = round(uniform(0, constants.dimension_field[1]), 3)
     new_coord = np.array([x_coord, y_coord])
-    if np.any(np.all(new_coord == tree.coord_list, axis=1)):
+    if list(new_coord) in tree.coord_list:
         return random_config(tree)
     return Node(x=np.array([x_coord, y_coord]))
     
@@ -107,8 +120,7 @@ def new_config(rand_node, nearest_node, nearest_node_dist):
     coord_to_comp = (rand_node.x[0] - nearest_node.x[0]) + (rand_node.x[1] - nearest_node.x[1])*1j
     phase = np.angle(coord_to_comp)
     new_node_comp = constants.step_size * np.exp(1j * phase)
-    rand_node.x = new_node_comp.real
-    rand_node.y = new_node_comp.imag
+    rand_node.x = np.array([new_node_comp.real, new_node_comp.imag]) + nearest_node.x
     return rand_node
 
 def is_obstacle_free(parent_node, child_node):
@@ -117,6 +129,7 @@ def is_obstacle_free(parent_node, child_node):
         if obstacle_lib.doIntersect(parent_node.x, child_node.x, obstacle[0:2], obstacle[2:4]):
             obstacle_free = False
     return obstacle_free
+
 
 
 
