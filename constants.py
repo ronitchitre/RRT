@@ -11,5 +11,5 @@ step_size = 0.2
 neighbour_radius = 0.5
 
 dimension_field = np.array([5, 5])
-recharge_point = np.array([0, 0])
-obstacle_line = np.array([0, 1, 1, 1])
+recharge_point = np.array([5, 5])
+obstacle_line = [np.array([0, 1, 1, 1])]

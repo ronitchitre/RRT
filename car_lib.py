@@ -56,7 +56,10 @@ class Car:
         if abs(omega) > constants.max_turn_rate:
             return "des_node invalid"
         # distance = 2 * theta * (constants.car_velocity / omega)
-        time_taken = 2 * alpha / omega
+        if omega != 0:
+            time_taken = 2 * alpha / omega
+        else:
+            time_taken = dist_between_nodes / constants.car_velocity
         distance = time_taken * constants.car_velocity
         # times = np.linspace(0, time_taken, constants.N_for_rk4)
         # new_x, new_v = rk4method_for_car(self, omega, times)
