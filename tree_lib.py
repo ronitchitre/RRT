@@ -101,6 +101,13 @@ class Tree():
             cur_node = cur_node.parent
             path = np.vstack([path, cur_node.x])
         return path
+    
+    def get_sterile_nodes(self):
+        sterile_nodes = []
+        for node in self.node_list:
+            if len(node.child_list) == 0:
+                sterile_nodes.append(node)
+        return sterile_nodes
 
 
 
