@@ -3,16 +3,16 @@ import tree_lib
 import constants
 import matplotlib.pyplot as plt
 
-ic = np.array([0, 0, 0, 1, np.pi / 2])
+ic = np.array([0, 0, 0, 1, np.pi])
 initial_node = tree_lib.Node(x=ic[0:2], v=ic[2:4], theta=ic[4])
-goal_point = np.array([5, 5])
+goal_point = np.array([1, 1])
 
 def RRT(initial_node, final_point):
     tree = tree_lib.Tree(initial_node)
     doRRT = True
     number_of_optimal = 0
     while doRRT:
-        rand_node = tree_lib.random_config(tree)
+        rand_node = tree_lib.random_config(tree, final_point)
         nearest_node, nearest_node_distance = tree.find_nearest(rand_node)
         rand_node = tree_lib.new_config(rand_node, nearest_node, nearest_node_distance)
         neighbourhood = tree.get_nodes_in_region(rand_node)
@@ -23,11 +23,9 @@ def RRT(initial_node, final_point):
             tree.insert_node(parent_node, rand_node)
             tree.rewire(neighbourhood, rand_node)
             print(rand_node.x, rand_node.cost)
-            if np.linalg.norm(rand_node.x - final_point) < 0.5:
-                number_of_optimal += 1
-                if number_of_optimal >= 3:
-                    doRRT = False
-                    path = tree.get_path(rand_node)
+            if np.linalg.norm(rand_node.x - final_point) == 0:
+                doRRT = False
+                path = tree.get_path(rand_node)
     return tree, path
 
 def plot_path(path, tree, other_branches = False):
@@ -50,3 +48,8 @@ def plot_path(path, tree, other_branches = False):
 tree, path = RRT(initial_node, goal_point)
 plot_path(path, tree, other_branches=True)
 # print(tree.get_path(goal_point))
+
+
+# improvements
+# change distance function from euclidean to some other norm.
+# in random config and a probability p such that with probability p goal will be picked as node. 

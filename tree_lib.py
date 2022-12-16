@@ -1,5 +1,5 @@
 import numpy as np
-from random import uniform
+from random import uniform, random
 import car_lib
 import constants
 import obstacle_lib
@@ -113,13 +113,17 @@ class Tree():
 
 
 
-def random_config(tree):
-    x_coord = round(uniform(0, constants.dimension_field[0]), 3)
-    y_coord = round(uniform(0, constants.dimension_field[1]), 3)
-    new_coord = np.array([x_coord, y_coord])
-    if list(new_coord) in tree.coord_list:
-        return random_config(tree)
-    return Node(x=np.array([x_coord, y_coord]))
+def random_config(tree, final_point, check_goal=True):
+    p = random()
+    if check_goal and p <= constants.goal_prob:
+        return Node(x=final_point)
+    else:
+        x_coord = round(uniform(-1 * constants.dimension_field[0] / 2, constants.dimension_field[0] / 2), 3)
+        y_coord = round(uniform(-1 * constants.dimension_field[1] / 2, constants.dimension_field[1] / 2), 3)
+        new_coord = np.array([x_coord, y_coord])
+        if list(new_coord) in tree.coord_list:
+            return random_config(tree, final_point, check_goal=True)
+        return Node(x=np.array([x_coord, y_coord]))
     
 def new_config(rand_node, nearest_node, nearest_node_dist):
     if nearest_node_dist <= constants.step_size:

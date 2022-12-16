@@ -26,12 +26,10 @@ def normalize(v):
     return v
 
 def ang_between(a, b):
-    norm_a = np.linalg.norm(a)
-    norm_b = np.linalg.norm(b)
-    cross = np.cross(a, b)
-    if abs(cross) < 1.0e-17:
-        return 0
-    return np.arcsin(cross / (norm_a * norm_b))
+    a_complex = a[0] + a[1] * 1j
+    b_complex = b[0] + b[1] * 1j
+    return np.angle(b_complex * np.conj(a_complex))
+
 
 def rotate(v, theta, length):
     v_to_complex = v[0] + v[1]*1j
@@ -55,7 +53,7 @@ class Car:
         alpha = ang_between(self.v, des_direction)
         dist_between_nodes = np.linalg.norm(des_direction)
         omega = 2 * constants.car_velocity * np.sin(alpha) / dist_between_nodes
-        if abs(omega) > constants.max_turn_rate:
+        if abs(omega) > constants.max_turn_rate or abs(alpha) > np.pi / 2:
             return "des_node invalid"
         # distance = 2 * theta * (constants.car_velocity / omega)
         if omega != 0:

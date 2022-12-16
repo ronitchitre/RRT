@@ -13,3 +13,5 @@ neighbour_radius = 0.07
 dimension_field = np.array([5, 5])
 recharge_point = np.array([5, 5])
 obstacle_line = [np.array([0.5, 0, 0.5, 0.5])]
+
+goal_prob = 0.1
