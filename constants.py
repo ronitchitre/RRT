@@ -10,8 +10,14 @@ N_for_rk4 = 5
 step_size = 0.05
 neighbour_radius = 0.07
 
+forest_neighbour = 0.09
+
 dimension_field = np.array([5, 5])
 recharge_point = np.array([5, 5])
 obstacle_line = [np.array([0.5, 0, 0.5, 0.5])]
 
 goal_prob = 0.1
+
+
+def distance(node1, node2):
+    return np.linalg.norm(node1.x - node2.x)

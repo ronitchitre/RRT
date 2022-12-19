@@ -3,7 +3,7 @@ import tree_lib
 import constants
 import matplotlib.pyplot as plt
 
-ic = np.array([0, 0, 0, 1, np.pi])
+ic = np.array([0, 0, 1, 1, np.pi])
 initial_node = tree_lib.Node(x=ic[0:2], v=ic[2:4], theta=ic[4])
 goal_point = np.array([1, 1])
 
