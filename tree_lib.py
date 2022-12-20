@@ -50,8 +50,9 @@ class Tree():
     def get_nodes_in_region(self, center_node):
         neighbour_nodes = []
         for node in self.node_list:
-            if constants.distance(center_node, node) <= constants.neighbour_radius:
-                neighbour_nodes.append(node)
+            if node.id != -1:
+                if constants.distance(center_node, node) <= constants.neighbour_radius:
+                    neighbour_nodes.append(node)
         return neighbour_nodes
     
     def choose_parent(self, rand_node, neighbourhood):
@@ -130,7 +131,11 @@ class Tree():
                     continue
                 old_parent = node.parent
                 self.remove_connection(old_parent, node)
-                node = Node(x=new_car.x, v=new_car.v, theta=new_car.theta, cost=new_cost)
+                # node = Node(x=new_car.x, v=new_car.v, theta=new_car.theta, cost=new_cost)
+                node.x = new_car.x
+                node.v = new_car.v
+                node.theta = new_car.theta
+                node.cost = new_cost
                 self.insert_node(parent_node=child_node, child_node=node)
     
     def get_path(self, cur_node):
@@ -138,7 +143,7 @@ class Tree():
         while cur_node.parent is not None:
             cur_node = cur_node.parent
             path = np.vstack([path, cur_node.x])
-        print(cur_node.x, cur_node.parent)
+        # print(cur_node.x, cur_node.parent, cur_node.id)
         return path
     
 

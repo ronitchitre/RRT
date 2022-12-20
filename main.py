@@ -14,19 +14,20 @@ def RRT(initial_node, final_point, testing = False):
     test_nodes = []
     test_counter = 0
     if testing:
-        with open("test_cases/test.txt", "r") as file:
+        with open("test_cases/bug.txt", "r") as file:
             for line in file:
                 space = line.find(" ")
                 x_coord = float(line[0:space])
                 y_coord = float(line[(space + 1):])
                 test_nodes.append(tree_lib.Node(x = np.array([x_coord, y_coord])))
-    print(len(test_nodes))
     while doRRT:
         if not testing:
             rand_node = tree_lib.random_config(tree, final_point)
         else:
             rand_node = test_nodes[test_counter]
             test_counter += 1
+            if test_counter == len(test_nodes):
+                testing = False
         nearest_node, nearest_node_distance = tree.find_nearest(rand_node)
         rand_node = tree_lib.new_config(rand_node, nearest_node, nearest_node_distance)
         neighbourhood = tree.get_nodes_in_region(rand_node)
@@ -36,7 +37,7 @@ def RRT(initial_node, final_point, testing = False):
         if tree_lib.is_obstacle_free(parent_node, rand_node):
             tree.insert_node(parent_node, rand_node)
             tree.rewire(neighbourhood, rand_node)
-            print(rand_node.x, rand_node.cost)
+            # print(rand_node.x, rand_node.cost)
             if np.linalg.norm(rand_node.x - final_point) == 0:
                 doRRT = False
                 path = tree.get_path(rand_node)
@@ -59,7 +60,10 @@ def plot_path(path, tree, other_branches = False):
     plt.legend()
     plt.show()
 
-tree, path = RRT(initial_node, goal_point, testing=True)
+tree, path = RRT(initial_node, goal_point, testing=False)
+# for node in tree.node_list:
+#     if node.x[0] == 0.77683228 and node.x[1] == 0.89359071:
+#         print(node.parent.x)
 plot_path(path, tree, other_branches=True)
 # print(tree.get_path(goal_point))
 
