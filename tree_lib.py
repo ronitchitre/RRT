@@ -95,6 +95,7 @@ class Tree():
                     self.update_subtree(child)
                 except:
                     self.remove_connection(node, child)
+                    self.remove_subtree(child)
     
     def remove_connection(self, parent_node, child_node):
         parent_node.child_list.remove(child_node)
@@ -102,9 +103,10 @@ class Tree():
         child_node.id = -1
         self.node_list.remove(child_node)
         self.coord_list.remove(list(child_node.x))
-        self.remove_subtree(child_node)
+        # self.remove_subtree(child_node)
     
     def remove_subtree(self, node):
+        # self.remove_connection(node.parent, node)
         for child in node.child_list:
             child.id = -1
             self.node_list.remove(child)
@@ -128,22 +130,17 @@ class Tree():
                     continue
                 old_parent = node.parent
                 self.remove_connection(old_parent, node)
-                node = Node(x=new_car.x, v=new_car.v, theta=new_car.theta)
-                self.insert_node(child_node, node)
+                node = Node(x=new_car.x, v=new_car.v, theta=new_car.theta, cost=new_cost)
+                self.insert_node(parent_node=child_node, child_node=node)
     
     def get_path(self, cur_node):
         path = np.array([cur_node.x])
         while cur_node.parent is not None:
             cur_node = cur_node.parent
             path = np.vstack([path, cur_node.x])
+        print(cur_node.x, cur_node.parent)
         return path
     
-    def get_sterile_nodes(self):
-        sterile_nodes = []
-        for node in self.node_list:
-            if len(node.child_list) == 0:
-                sterile_nodes.append(node)
-        return sterile_nodes
 
 
 
@@ -152,14 +149,17 @@ class Tree():
 def random_config(tree, final_point, check_goal=True):
     p = random()
     if check_goal and p <= constants.goal_prob:
-        return Node(x=final_point)
+        rand_node =  Node(x=final_point)
     else:
         x_coord = round(uniform(-1 * constants.dimension_field[0] / 2, constants.dimension_field[0] / 2), 3)
         y_coord = round(uniform(-1 * constants.dimension_field[1] / 2, constants.dimension_field[1] / 2), 3)
         new_coord = np.array([x_coord, y_coord])
         if list(new_coord) in tree.coord_list:
             return random_config(tree, final_point, check_goal=True)
-        return Node(x=np.array([x_coord, y_coord]))
+        rand_node = Node(x=np.array([x_coord, y_coord]))
+    with open("test_cases/test.txt", "a") as file:
+        file.write(f"{rand_node.x[0]} {rand_node.x[1]} \n")  
+    return rand_node
     
 def new_config(rand_node, nearest_node, nearest_node_dist):
     if nearest_node_dist <= constants.step_size:
