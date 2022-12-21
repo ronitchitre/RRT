@@ -93,6 +93,9 @@ class Tree():
                     child.v = new_car.v
                     child.theta = new_car.theta
                     child.cost = node.cost + distance
+                    child.id = self.id
+                    self.node_list.append(child)
+                    self.coord_list.append(list(child.x))
                     self.update_subtree(child)
                 except:
                     self.remove_connection(node, child)

@@ -3,9 +3,9 @@ import tree_lib
 import constants
 import matplotlib.pyplot as plt
 
-ic = np.array([0, 0, 1, 1, np.pi])
+ic = np.array([1, 1, 1, 1, np.pi])
 initial_node = tree_lib.Node(x=ic[0:2], v=ic[2:4], theta=ic[4])
-goal_point = np.array([1, 1])
+goal_point = np.array([0, 0])
 
 def RRT(initial_node, final_point, testing = False):
     tree = tree_lib.Tree(initial_node)
@@ -60,14 +60,16 @@ def plot_path(path, tree, other_branches = False):
     plt.legend()
     plt.show()
 
-tree, path = RRT(initial_node, goal_point, testing=False)
-# for node in tree.node_list:
-#     if node.x[0] == 0.77683228 and node.x[1] == 0.89359071:
-#         print(node.parent.x)
-plot_path(path, tree, other_branches=True)
-# print(tree.get_path(goal_point))
+
+if __name__ == "__main__":
+    tree, path = RRT(initial_node, goal_point, testing=False)
+    # for node in tree.node_list:
+    #     if node.x[0] == 0.77683228 and node.x[1] == 0.89359071:
+    #         print(node.parent.x)
+    plot_path(path, tree, other_branches=True)
+    # print(tree.get_path(goal_point))
 
 
-# improvements
-# change distance function from euclidean to some other norm.
-# in random config and a probability p such that with probability p goal will be picked as node. 
+    # improvements
+    # change distance function from euclidean to some other norm.
+    # in random config and a probability p such that with probability p goal will be picked as node. 
