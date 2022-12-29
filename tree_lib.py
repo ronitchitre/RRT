@@ -38,9 +38,9 @@ class Tree():
         self.coord_list = [list(root_node.x)]
 
     def find_nearest(self, q_rand):
-        nearest_node = self.root_node
+        nearest_node = "unsure"
         nearest_node_dist = float('inf')
-        for node in self.node_list[1:]:
+        for node in self.node_list:
             possible_dist = constants.distance(node, q_rand)
             if possible_dist < nearest_node_dist:
                 nearest_node = node
@@ -74,15 +74,15 @@ class Tree():
             rand_node.set_prop(new_car.x, new_car.v, new_car.theta, min_cost)
             return parent_node
     
-    def insert_node(self, parent_node, child_node):
+    def insert_node(self, parent_node, child_node, forest=None):
         parent_node.child_list.append(child_node)
         child_node.parent = parent_node
         child_node.id = self.id
         self.node_list.append(child_node)
         self.coord_list.append(list(child_node.x))
-        self.update_subtree(child_node)
+        self.update_subtree(child_node, forest)
 
-    def update_subtree(self, node):
+    def update_subtree(self, node, forest=None):
         if len(node.child_list) == 0:
             return
         else:
@@ -96,25 +96,34 @@ class Tree():
                     child.id = self.id
                     self.node_list.append(child)
                     self.coord_list.append(list(child.x))
-                    self.update_subtree(child)
+                    self.update_subtree(child, forest)
                 except:
-                    self.remove_connection(node, child)
-                    self.remove_subtree(child)
+                    if forest is None:
+                        self.remove_connection(node, child)
+                        self.remove_subtree(child)
+                    else:
+                        continue
     
     def remove_connection(self, parent_node, child_node):
         parent_node.child_list.remove(child_node)
-        child_node.parent = None 
-        child_node.id = -1
+        if child_node not in self.node_list:
+            print(f"child node with id {child_node.id} not in list. It is at {child_node.x}")
         self.node_list.remove(child_node)
         self.coord_list.remove(list(child_node.x))
+        child_node.parent = None 
+        child_node.id = -1
         # self.remove_subtree(child_node)
     
     def remove_subtree(self, node):
         # self.remove_connection(node.parent, node)
         for child in node.child_list:
-            child.id = -1
+            if child.id == -1:
+                continue
+            if child not in self.node_list:
+                print(f"child node with id {child.id} not in list. It is at {child.x}")
             self.node_list.remove(child)
             self.coord_list.remove(list(child.x))
+            child.id = -1
             self.remove_subtree(child)
     
     # def remove_from_list(self, child_node):
@@ -163,10 +172,10 @@ def random_config(tree, final_point, check_goal=True):
         y_coord = round(uniform(-1 * constants.dimension_field[1] / 2, constants.dimension_field[1] / 2), 3)
         new_coord = np.array([x_coord, y_coord])
         if list(new_coord) in tree.coord_list:
-            return random_config(tree, final_point, check_goal=True)
+            return random_config(tree, final_point, check_goal)
         rand_node = Node(x=np.array([x_coord, y_coord]))
     with open("test_cases/test.txt", "a") as file:
-        file.write(f"{rand_node.x[0]} {rand_node.x[1]} \n")  
+        file.write(f"{rand_node.x[0]} {rand_node.x[1]} \n") 
     return rand_node
     
 def new_config(rand_node, nearest_node, nearest_node_dist):
@@ -179,11 +188,12 @@ def new_config(rand_node, nearest_node, nearest_node_dist):
     return rand_node
 
 def is_obstacle_free(parent_node, child_node):
-    obstacle_free = True
-    for obstacle in constants.obstacle_line:
-        if obstacle_lib.doIntersect(parent_node.x, child_node.x, obstacle[0:2], obstacle[2:4]):
-            obstacle_free = False
-    return obstacle_free
+    return True
+    # obstacle_free = True
+    # for obstacle in constants.obstacle_line:
+    #     if obstacle_lib.doIntersect(parent_node.x, child_node.x, obstacle[0:2], obstacle[2:4]):
+    #         obstacle_free = False
+    # return obstacle_free
 
 
 

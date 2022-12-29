@@ -10,7 +10,6 @@ goal_point = np.array([0, 0])
 def RRT(initial_node, final_point, testing = False):
     tree = tree_lib.Tree(initial_node)
     doRRT = True
-    number_of_optimal = 0
     test_nodes = []
     test_counter = 0
     if testing:
@@ -67,6 +66,10 @@ if __name__ == "__main__":
     #     if node.x[0] == 0.77683228 and node.x[1] == 0.89359071:
     #         print(node.parent.x)
     plot_path(path, tree, other_branches=True)
+
+    for node in tree.node_list:
+        if node.id == -1:
+            print(node.x)
     # print(tree.get_path(goal_point))
 
 

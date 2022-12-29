@@ -16,8 +16,7 @@ forest = forest_lib.Forest(initial_tree)
 
 robot_state = ic
 
-while robot_state[1] < 3:
-    robot_state += constants.robot_velocity
+while robot_state[1] < 1.03:
     initial_node = tree_lib.Node(x=robot_state[0:2], v=robot_state[2:4], theta=robot_state[4])
     new_tree = tree_lib.Tree(root_node=initial_node)
     forest.update_forest(new_tree)
@@ -35,10 +34,15 @@ while robot_state[1] < 3:
             new_tree.rewire(tree_neighbourhood, rand_node)
             p = random()
             if p <= constants.scan_forest_prob:
-                forest_neighbouthood = forest.get_forest_neighbourhood(rand_node)
-                forest.check_tree_connection(rand_node, forest_neighbouthood)
+                forest_neighbourhood = forest.get_forest_neighbourhood(rand_node)
+                forest.check_tree_connection(rand_node, forest_neighbourhood)
             if forest.checkgoal(recharge_point):
                 doRRT = False
+    for node in new_tree.node_list:
+        if node.id != 0:
+            print(f"wrong {node.id}")
+    print(len(new_tree.node_list))
+    robot_state += constants.robot_velocity
 
 
             
