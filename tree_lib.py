@@ -99,8 +99,9 @@ class Tree():
                     self.update_subtree(child, forest)
                 except:
                     if forest is None:
-                        self.remove_connection(node, child)
-                        self.remove_subtree(child)
+                        if child.id != -1:
+                            self.remove_connection(node, child)
+                            self.remove_subtree(child)
                     else:
                         continue
     

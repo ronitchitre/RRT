@@ -26,25 +26,27 @@ class Forest:
     
 
     def check_tree_connection(self, rand_node, neighbourhood):
-        min_dist = float('inf')
         selected_node = False
-        link_node = "unsure"
+        distance_array = []
+        car_array = []
         for node in neighbourhood:
             try:
                 new_car, distance = rand_node.propogate(node)
-                if distance < min_dist:
-                    selected_node = True
-                    min_dist = distance
-                    new_cost = rand_node.cost + distance
-                    node.x = new_car.x
-                    node.v = new_car.v
-                    node.theta = new_car.theta
-                    node.cost = new_cost
-                    link_node = node
-                
+                selected_node = True
+                distance_array.append(distance)
+                car_array.append(new_car)
             except:
-                continue
+                distance_array.append(float('inf'))
+                car_array.append(None)
         if selected_node:
+            min_cost_index = distance_array.index(min(distance_array))
+            min_distance = distance_array[min_cost_index]
+            min_car = car_array[min_cost_index]
+            link_node = neighbourhood[min_cost_index]
+            link_node.x = min_car.x
+            link_node.v = min_car.v
+            link_node.theta = min_car.theta
+            link_node.cost = min_distance + rand_node.cost
             self.tree_cutting(rand_node, link_node)
 
     def tree_cutting(self, new_node, link_node):

@@ -38,9 +38,9 @@ while robot_state[1] < 1.03:
                 forest.check_tree_connection(rand_node, forest_neighbourhood)
             if forest.checkgoal(recharge_point):
                 doRRT = False
-    for node in new_tree.node_list:
-        if node.id != 0:
-            print(f"wrong {node.id}")
+    # for node in new_tree.node_list:
+    #     if node.id != 0:
+    #         print(f"wrong {node.id}")
     print(len(new_tree.node_list))
     robot_state += constants.robot_velocity
 
