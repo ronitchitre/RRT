@@ -158,6 +158,11 @@ class Tree():
             path = np.vstack([path, cur_node.x])
         # print(cur_node.x, cur_node.parent, cur_node.id)
         return path
+
+    def get_node_with_coord(self, coord):
+        for node in self.node_list:
+            if node.x[0] == coord[0] and node.x[1] == coord[1]:
+                return node
     
 
 
@@ -169,8 +174,8 @@ def random_config(tree, final_point, check_goal=True):
     if check_goal and p <= constants.goal_prob:
         rand_node =  Node(x=final_point)
     else:
-        x_coord = round(uniform(-1 * constants.dimension_field[0] / 2, constants.dimension_field[0] / 2), 3)
-        y_coord = round(uniform(-1 * constants.dimension_field[1] / 2, constants.dimension_field[1] / 2), 3)
+        x_coord = round(uniform(0, constants.dimension_field[0]), 3)
+        y_coord = round(uniform(0, constants.dimension_field[1]), 3)
         new_coord = np.array([x_coord, y_coord])
         if list(new_coord) in tree.coord_list:
             return random_config(tree, final_point, check_goal)
@@ -189,12 +194,11 @@ def new_config(rand_node, nearest_node, nearest_node_dist):
     return rand_node
 
 def is_obstacle_free(parent_node, child_node):
-    return True
-    # obstacle_free = True
-    # for obstacle in constants.obstacle_line:
-    #     if obstacle_lib.doIntersect(parent_node.x, child_node.x, obstacle[0:2], obstacle[2:4]):
-    #         obstacle_free = False
-    # return obstacle_free
+    obstacle_free = True
+    for obstacle in constants.obstacle_line:
+        if obstacle_lib.doIntersect(parent_node.x, child_node.x, obstacle[0:2], obstacle[2:4]):
+            obstacle_free = False
+    return obstacle_free
 
 
 

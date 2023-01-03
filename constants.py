@@ -13,11 +13,10 @@ neighbour_radius = 0.07
 
 forest_neighbour = 0.09
 forest_trees = 2
-scan_forest_prob = 1.0
+scan_forest_prob = 0.5
 
-dimension_field = np.array([5, 5])
-recharge_point = np.array([5, 5])
-obstacle_line = [np.array([0, 0, 0, 0])]
+dimension_field = np.array([2, 2])
+obstacle_line = [np.array([0, 0.5, 0.25, 0.5])]
 
 goal_prob = 0.1
 

@@ -80,8 +80,8 @@ class Forest:
         if check_goal and p <= constants.goal_prob:
             rand_node =  tree_lib.Node(x=final_point)
         else:
-            x_coord = round(uniform(-1 * constants.dimension_field[0] / 2, constants.dimension_field[0] / 2), 3)
-            y_coord = round(uniform(-1 * constants.dimension_field[1] / 2, constants.dimension_field[1] / 2), 3)
+            x_coord = round(uniform(0, constants.dimension_field[0]), 3)
+            y_coord = round(uniform(0, constants.dimension_field[1]), 3)
             new_coord = np.array([x_coord, y_coord])
 
             for tree in self.tree_list:
