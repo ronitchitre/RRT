@@ -39,7 +39,7 @@ def plot_forest(forest, path):
     plt.legend()
     plt.show()
 
-while robot_state[1] < 1.05:
+while robot_state[1] < 1.03:
     initial_node = tree_lib.Node(x=robot_state[0:2], v=robot_state[2:4], theta=robot_state[4])
     new_tree = tree_lib.Tree(root_node=initial_node)
     forest.update_forest(new_tree)
