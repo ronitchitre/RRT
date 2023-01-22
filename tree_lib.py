@@ -60,16 +60,15 @@ class Tree():
         parent_node = "unsure"
         path_possible = False
         for node in neighbourhood:
-            if node.id != -1:
-                try:
-                    new_car, distance = node.propogate(rand_node)
-                    path_possible = True
-                except:
-                    continue
-                new_cost = node.cost + distance
-                if new_cost < min_cost:
-                    min_cost = new_cost
-                    parent_node = node
+            try:
+                new_car, distance = node.propogate(rand_node)
+                path_possible = True
+            except:
+                continue
+            new_cost = node.cost + distance
+            if new_cost < min_cost:
+                min_cost = new_cost
+                parent_node = node
         if path_possible:
             rand_node.set_prop(new_car.x, new_car.v, new_car.theta, min_cost)
             return parent_node
@@ -93,7 +92,6 @@ class Tree():
                     child.v = new_car.v
                     child.theta = new_car.theta
                     child.cost = node.cost + distance
-                    child.id = self.id
                     self.node_list.append(child)
                     self.coord_list.append(list(child.x))
                     self.update_subtree(child, forest)
@@ -122,6 +120,7 @@ class Tree():
                 continue
             if child not in self.node_list:
                 print(f"child node with id {child.id} not in list. It is at {child.x}")
+                continue
             self.node_list.remove(child)
             self.coord_list.remove(list(child.x))
             child.id = -1
@@ -180,8 +179,8 @@ def random_config(tree, final_point, check_goal=True):
         if list(new_coord) in tree.coord_list:
             return random_config(tree, final_point, check_goal)
         rand_node = Node(x=np.array([x_coord, y_coord]))
-    with open("test_cases/test.txt", "a") as file:
-        file.write(f"{rand_node.x[0]} {rand_node.x[1]} \n") 
+    # with open("test_cases/test.txt", "a") as file:
+    #     file.write(f"{rand_node.x[0]} {rand_node.x[1]} \n") 
     return rand_node
     
 def new_config(rand_node, nearest_node, nearest_node_dist):

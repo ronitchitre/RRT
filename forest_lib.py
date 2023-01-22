@@ -20,34 +20,31 @@ class Forest:
         for tree in self.tree_list:
             if tree.id != curent_tree.id:
                 for node in tree.node_list:
-                    if node.id != -1 and constants.distance(node, center_node) <= constants.forest_neighbour:
+                    if constants.distance(node, center_node) <= constants.forest_neighbour:
                         neighbour_nodes.append(node)
         return neighbour_nodes
     
 
     def check_tree_connection(self, rand_node, neighbourhood):
-        selected_node = False
         distance_array = []
         car_array = []
+        selected_node = False
         for node in neighbourhood:
             try:
                 new_car, distance = rand_node.propogate(node)
-                selected_node = True
-                distance_array.append(distance)
-                car_array.append(new_car)
             except:
-                distance_array.append(float('inf'))
-                car_array.append(None)
+                continue
+            selected_node = True
+            distance_array.append(distance)
+            car_array.append(new_car)
         if selected_node:
             min_cost_index = distance_array.index(min(distance_array))
             min_distance = distance_array[min_cost_index]
             min_car = car_array[min_cost_index]
-            link_node = neighbourhood[min_cost_index]
-            link_node.x = min_car.x
-            link_node.v = min_car.v
-            link_node.theta = min_car.theta
-            link_node.cost = min_distance + rand_node.cost
-            self.tree_cutting(rand_node, link_node)
+            link_node_old_tree = neighbourhood[min_cost_index]
+            link_node_new_tree = tree_lib.Node(x=min_car.x, v=min_car.v, theta=min_car.theta)
+            link_node_new_tree.cost = min_distance + rand_node.cost
+            self.tree_building(rand_node, link_node_old_tree, link_node_new_tree)
 
     def tree_cutting(self, new_node, link_node):
         old_tree = self.tree_list[link_node.id]
@@ -58,6 +55,19 @@ class Forest:
         old_tree.remove_connection(link_node_parent, link_node)
         old_tree.remove_subtree(link_node)
         new_tree.insert_node(new_node, link_node, self)
+
+    def tree_building(self, new_node, link_node_old_tree, link_node_new_tree):
+        old_tree = self.tree_list[link_node_old_tree.id]
+        new_tree = self.tree_list[new_node.id]
+        new_tree.insert_node(new_node, link_node_new_tree, self)
+        for child_node_old in link_node_old_tree.child_list:
+            try:
+                child_car_new, distance = link_node_new_tree.propogate(child_node_old)
+            except:
+                continue
+            child_node_new = tree_lib.Node(x=child_car_new.x, v=child_car_new.v,
+             theta=child_car_new.theta, cost=(link_node_new_tree.cost + distance))
+            self.tree_building(link_node_new_tree, child_node_old, child_node_new)
     
     def update_forest(self, tree):
         if len(self.tree_list) < constants.forest_trees:

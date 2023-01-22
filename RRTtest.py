@@ -3,7 +3,7 @@ import tree_lib
 import constants
 import matplotlib.pyplot as plt
 
-ic = np.array([1, 1, 1, 1, np.pi])
+ic = np.array([0, 1, 1, 1, np.pi])
 initial_node = tree_lib.Node(x=ic[0:2], v=ic[2:4], theta=ic[4])
 goal_point = np.array([0, 0])
 
@@ -36,7 +36,6 @@ def RRT(initial_node, final_point, testing = False):
         if tree_lib.is_obstacle_free(parent_node, rand_node):
             tree.insert_node(parent_node, rand_node)
             tree.rewire(neighbourhood, rand_node)
-            # print(rand_node.x, rand_node.cost)
             if np.linalg.norm(rand_node.x - final_point) == 0:
                 doRRT = False
                 path = tree.get_path(rand_node)
@@ -62,14 +61,10 @@ def plot_path(path, tree, other_branches = False):
 
 if __name__ == "__main__":
     tree, path = RRT(initial_node, goal_point, testing=False)
-    # for node in tree.node_list:
-    #     if node.x[0] == 0.77683228 and node.x[1] == 0.89359071:
-    #         print(node.parent.x)
-    plot_path(path, tree, other_branches=True)
-
     for node in tree.node_list:
         if node.id == -1:
             print(node.x)
+    plot_path(path, tree, other_branches=True)
     # print(tree.get_path(goal_point))
 
 
