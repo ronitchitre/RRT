@@ -3,15 +3,12 @@ import tree_lib
 import constants
 import matplotlib.pyplot as plt
 
-ic = np.array([0, 1, 1, 1, np.pi])
-initial_node = tree_lib.Node(x=ic[0:2], v=ic[2:4], theta=ic[4])
-goal_point = np.array([0, 0])
-
 def RRT(initial_node, final_point, testing = False):
     tree = tree_lib.Tree(initial_node)
     doRRT = True
     test_nodes = []
     test_counter = 0
+    k = 0
     if testing:
         with open("test_cases/bug.txt", "r") as file:
             for line in file:
@@ -35,10 +32,15 @@ def RRT(initial_node, final_point, testing = False):
             continue
         if tree_lib.is_obstacle_free(parent_node, rand_node):
             tree.insert_node(parent_node, rand_node)
+            k += 1
             tree.rewire(neighbourhood, rand_node)
-            if np.linalg.norm(rand_node.x - final_point) == 0:
+            if np.linalg.norm(rand_node.x - final_point) <= 0.05:
                 doRRT = False
                 path = tree.get_path(rand_node)
+        if k >= constants.k_max:
+            doRRT = False
+            print(f"failed to find path in less than {constants.k_max} nodes")
+            path = None
     return tree, path
 
 def plot_path(path, tree, other_branches = False):
@@ -60,6 +62,9 @@ def plot_path(path, tree, other_branches = False):
 
 
 if __name__ == "__main__":
+    ic = np.array([0, 1, 1, 1, np.pi])
+    initial_node = tree_lib.Node(x=ic[0:2], v=ic[2:4], theta=ic[4])
+    goal_point = np.array([0, 0])
     tree, path = RRT(initial_node, goal_point, testing=False)
     for node in tree.node_list:
         if node.id == -1:

@@ -158,6 +158,14 @@ class Tree():
         # print(cur_node.x, cur_node.parent, cur_node.id)
         return path
 
+    # def get_path(self, cur_node):
+    #     path = [cur_node]
+    #     while cur_node.parent is not None:
+    #         cur_node = cur_node.parent
+    #         path.append(cur_node)
+    #     # print(cur_node.x, cur_node.parent, cur_node.id)
+    #     return path
+
     def get_node_with_coord(self, coord):
         for node in self.node_list:
             if node.x[0] == coord[0] and node.x[1] == coord[1]:
@@ -168,13 +176,16 @@ class Tree():
 
 
 
-def random_config(tree, final_point, check_goal=True):
+def random_config(tree, final_point, check_goal=True, neighbourhood = []):
     p = random()
     if check_goal and p <= constants.goal_prob:
         rand_node =  Node(x=final_point)
+    elif len(neighbourhood) != 0 and p <= constants.neigh_prob:
+        rand_choice = np.random.choice(neighbourhood)
+        rand_node = Node(x = rand_choice.x)
     else:
-        x_coord = round(uniform(0, constants.dimension_field[0]), 3)
-        y_coord = round(uniform(0, constants.dimension_field[1]), 3)
+        x_coord = round(uniform(0, constants.dimension_field[0]), 2)
+        y_coord = round(uniform(0, constants.dimension_field[1]), 2)
         new_coord = np.array([x_coord, y_coord])
         if list(new_coord) in tree.coord_list:
             return random_config(tree, final_point, check_goal)
@@ -190,6 +201,8 @@ def new_config(rand_node, nearest_node, nearest_node_dist):
     phase = np.angle(coord_to_comp)
     new_node_comp = constants.step_size * np.exp(1j * phase)
     rand_node.x = np.array([new_node_comp.real, new_node_comp.imag]) + nearest_node.x
+    rand_node.x[0] = round(rand_node.x[0], 2)
+    rand_node.x[1] = round(rand_node.x[1], 2)
     return rand_node
 
 def is_obstacle_free(parent_node, child_node):
