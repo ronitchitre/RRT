@@ -23,6 +23,16 @@ class Forest:
                     if constants.distance(node, center_node) <= constants.forest_neighbour:
                         neighbour_nodes.append(node)
         return neighbour_nodes
+
+    def get_path_neighbourhood(self, center_node):
+        curent_tree = self.tree_list[center_node.id]
+        neighbour_nodes = []
+        for tree in self.tree_list:
+            if tree.id != curent_tree.id:
+                for node in tree.path:
+                    if constants.distance(node, center_node) <= constants.forest_neighbour:
+                        neighbour_nodes.append(node)
+        return neighbour_nodes
     
 
     def check_tree_connection(self, rand_node, neighbourhood):
@@ -60,6 +70,7 @@ class Forest:
         old_tree = self.tree_list[link_node_old_tree.id]
         new_tree = self.tree_list[new_node.id]
         new_tree.insert_node(new_node, link_node_new_tree, self)
+
         for child_node_old in link_node_old_tree.child_list:
             try:
                 child_car_new, distance = link_node_new_tree.propogate(child_node_old)
@@ -68,6 +79,21 @@ class Forest:
             child_node_new = tree_lib.Node(x=child_car_new.x, v=child_car_new.v,
              theta=child_car_new.theta, cost=(link_node_new_tree.cost + distance))
             self.tree_building(link_node_new_tree, child_node_old, child_node_new)
+
+    def path_building(self, new_node, link_node_old_tree, link_node_new_tree):
+        old_tree = self.tree_list[link_node_old_tree.id]
+        new_tree = self.tree_list[new_node.id]
+        new_tree.insert_node(new_node, link_node_new_tree, self)
+
+        for child_node_old in link_node_old_tree.child_list:
+            if child_node_old.part_of_path:
+                try:
+                    child_car_new, distance = link_node_new_tree.propogate(child_node_old)
+                except:
+                    continue
+                child_node_new = tree_lib.Node(x=child_car_new.x, v=child_car_new.v,
+                theta=child_car_new.theta, cost=(link_node_new_tree.cost + distance))
+                self.tree_building(link_node_new_tree, child_node_old, child_node_new)
     
     def update_forest(self, tree):
         if len(self.tree_list) < constants.forest_trees:

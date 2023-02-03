@@ -16,7 +16,9 @@ def plot_forest(forest, path = None):
     old_tree_coords = np.array([np.array([x[0], x[1]]) for x in old_tree.coord_list])
     plt.scatter(old_tree_coords[:, 0], old_tree_coords[:, 1], label='old_tree', marker=".", c="purple", alpha=0.5)
     if path is not None:
-        plt.plot(path[:, 0], path[:, 1], label='path', marker='o', color='blue', linewidth=2)
+        path_coord_x = [node.x[0] for node in path]
+        path_coord_y = [node.x[1] for node in path]
+        plt.plot(path_coord_x, path_coord_y, label='path', marker='o', color='blue', linewidth=2)
     for obstacle in constants.obstacle_line:
         obstacle_x = np.array([obstacle[0], obstacle[2]])
         obstacle_y = np.array([obstacle[1], obstacle[3]])
@@ -45,7 +47,8 @@ def RRF(robot_state):
     forest_neighbourhood = []
 
     forest = forest_lib.Forest(initial_tree)
-    while robot_state[1] < 3.04:
+    robot_state_ind = 0
+    while robot_state_ind < 4:
         k = 0
 
         # fig, ax = plt.subplots()
@@ -64,7 +67,7 @@ def RRF(robot_state):
         forest.update_forest(new_tree)
         doRRT = True
         while doRRT:
-            rand_node = tree_lib.random_config(new_tree, constants.recharge_point, check_goal=True, neighbourhood=forest_neighbourhood)
+            rand_node = tree_lib.random_config(new_tree, constants.recharge_point, check_goal=True, neighbourhood=path)
             nearest_node, nearest_node_distance = new_tree.find_nearest(rand_node)
             rand_node = tree_lib.new_config(rand_node, nearest_node, nearest_node_distance)
             tree_neighbourhood = new_tree.get_nodes_in_region(rand_node)
@@ -74,10 +77,10 @@ def RRF(robot_state):
             if tree_lib.is_obstacle_free(parent_node, rand_node):
                 k += 1
                 new_tree.insert_node(parent_node, rand_node)
-                new_tree.rewire(tree_neighbourhood, rand_node)
+                # new_tree.rewire(tree_neighbourhood, rand_node)
                 p = random()
                 if p <= constants.scan_forest_prob:
-                    forest_neighbourhood = forest.get_forest_neighbourhood(rand_node)
+                    forest_neighbourhood = forest.get_path_neighbourhood(rand_node)
                     forest.check_tree_connection(rand_node, forest_neighbourhood)
                 if forest.checkgoal(constants.recharge_point):
                     doRRT = False
@@ -101,10 +104,11 @@ def RRF(robot_state):
             plot_forest(forest, path)
         else:
             plot_forest(forest)
-
-        path_list.append(path.copy())
+        if path is not None:
+            path_list.append(path.copy())
         tree_list.append(new_tree.coord_list.copy())
         robot_state += constants.robot_velocity
+        robot_state_ind += 1
     return tree_list, path_list, time_array
 
 # tree_list, path_list, time_array = RRF(ic)
@@ -127,7 +131,10 @@ def RRF(robot_state):
 # i = 0
 
 # for path in path_list:
-#     plt.plot(path[:, 0], path[:, 1], label=f'{i}th path', marker='o', linewidth=2)   
+#     if path is not None:
+#             path_coord_x = [node.x[0] for node in path]
+#             path_coord_y = [node.x[1] for node in path]
+#             plt.plot(path_coord_x, path_coord_y, label=f'{i}th path', marker='o', linewidth=2)   
 #     i += 1 
 
 # plt.legend()
@@ -140,7 +147,7 @@ time_array_2 = []
 time_array_3 = []
 
 for _1 in iterations:
-    ic_timetest = np.array([0, 3, 0, -1, np.pi / 2])
+    ic_timetest = np.array([0, 3, 1, 0, np.pi / 2])
     print(_1)
     _2, _3, time_array = RRF(ic_timetest)
     print(time_array)

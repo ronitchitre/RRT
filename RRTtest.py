@@ -33,14 +33,14 @@ def RRT(initial_node, final_point, testing = False):
         if tree_lib.is_obstacle_free(parent_node, rand_node):
             tree.insert_node(parent_node, rand_node)
             k += 1
-            tree.rewire(neighbourhood, rand_node)
-            if np.linalg.norm(rand_node.x - final_point) <= 0.05:
+            # tree.rewire(neighbourhood, rand_node)
+            if np.linalg.norm(rand_node.x - final_point) == 0.0:
                 doRRT = False
                 path = tree.get_path(rand_node)
-        if k >= constants.k_max:
-            doRRT = False
-            print(f"failed to find path in less than {constants.k_max} nodes")
-            path = None
+        # if k >= constants.k_max:
+        #     doRRT = False
+        #     print(f"failed to find path in less than {constants.k_max} nodes")
+        #     path = None
     return tree, path
 
 def plot_path(path, tree, other_branches = False):

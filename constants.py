@@ -8,20 +8,20 @@ max_turn_rate = np.tan(max_ster_angle) * car_velocity / car_length
 robot_velocity = car_velocity * np.array([0, 1, 0, 0, 0])
 
 N_for_rk4 = 5
-step_size = 0.1
-neighbour_radius = 0.15
-k_max = 1000
+step_size = 0.05
+neighbour_radius = 0.08
+k_max = 2500
 
-forest_neighbour = 0.2
+forest_neighbour = 0.08
 forest_trees = 2
-scan_forest_prob = 0.5
+scan_forest_prob = 0.0
 
 dimension_field = np.array([4, 4])
-obstacle_line = [np.array([1, 2, 1, 4])]
-recharge_point = np.array([3, 3])
+obstacle_line = [np.array([3, 0, 3, 3])]
+recharge_point = np.array([4, 1])
 
-goal_prob = 0.3
-neigh_prob = 0.2
+goal_prob = 0.1
+neigh_prob = 0.5
 
 
 def distance(node1, node2):

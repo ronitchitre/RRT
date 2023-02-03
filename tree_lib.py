@@ -11,6 +11,7 @@ class Node(car_lib.Car):
         self.cost = cost
         self.child_list = []
         self.id = id
+        self.part_of_path = False
     
     def add_child(self, child_node):
         try:
@@ -36,6 +37,7 @@ class Tree():
         self.root_node = root_node
         self.node_list = [root_node]
         self.coord_list = [list(root_node.x)]
+        self.path = None
 
     def find_nearest(self, q_rand):
         nearest_node = "unsure"
@@ -150,21 +152,24 @@ class Tree():
                 node.cost = new_cost
                 self.insert_node(parent_node=child_node, child_node=node)
     
-    def get_path(self, cur_node):
-        path = np.array([cur_node.x])
-        while cur_node.parent is not None:
-            cur_node = cur_node.parent
-            path = np.vstack([path, cur_node.x])
-        # print(cur_node.x, cur_node.parent, cur_node.id)
-        return path
-
     # def get_path(self, cur_node):
-    #     path = [cur_node]
+    #     path = np.array([cur_node.x])
     #     while cur_node.parent is not None:
     #         cur_node = cur_node.parent
-    #         path.append(cur_node)
+    #         path = np.vstack([path, cur_node.x])
     #     # print(cur_node.x, cur_node.parent, cur_node.id)
     #     return path
+
+    def get_path(self, cur_node):
+        path = [cur_node]
+        cur_node.part_of_path = True
+        while cur_node.parent is not None:
+            cur_node = cur_node.parent
+            cur_node.part_of_path = True
+            path.append(cur_node)
+        # print(cur_node.x, cur_node.parent, cur_node.id)
+        self.path = path
+        return path
 
     def get_node_with_coord(self, coord):
         for node in self.node_list:
@@ -176,11 +181,11 @@ class Tree():
 
 
 
-def random_config(tree, final_point, check_goal=True, neighbourhood = []):
+def random_config(tree, final_point, check_goal=True, neighbourhood = None):
     p = random()
     if check_goal and p <= constants.goal_prob:
         rand_node =  Node(x=final_point)
-    elif len(neighbourhood) != 0 and p <= constants.neigh_prob:
+    elif neighbourhood is not None and p <= constants.neigh_prob:
         rand_choice = np.random.choice(neighbourhood)
         rand_node = Node(x = rand_choice.x)
     else:
