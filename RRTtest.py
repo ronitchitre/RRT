@@ -18,7 +18,7 @@ def RRT(initial_node, final_point, testing = False):
                 test_nodes.append(tree_lib.Node(x = np.array([x_coord, y_coord])))
     while doRRT:
         if not testing:
-            rand_node = tree_lib.random_config(tree, final_point)
+            rand_node = tree_lib.random_config(tree, final_point, robot_state=initial_node.x)
         else:
             rand_node = test_nodes[test_counter]
             test_counter += 1
@@ -60,6 +60,39 @@ def plot_tree(tree, path):
     plt.title('RRT path')
     plt.legend()
     plt.show()
+
+
+def reached_at_recharge(rand_node, power):
+    for recharge_point in constants.recharge_points:
+        if np.linalg.norm(recharge_point - rand_node.x) == 0 and rand_node.cost <= power:
+            return True
+    return False
+
+
+def RRTsim(initial_node, final_points, power):
+    tree = tree_lib.Tree(initial_node)
+    doRRT = True
+    k = 0
+    while doRRT:
+        rand_node = tree_lib.random_config(tree, final_points, robot_state=initial_node.x)
+        nearest_node, nearest_node_distance = tree.find_nearest(rand_node)
+        rand_node = tree_lib.new_config(rand_node, nearest_node, nearest_node_distance)
+        neighbourhood = tree.get_nodes_in_region(rand_node)
+        parent_node = tree.choose_parent(rand_node, neighbourhood)
+        if parent_node is None:
+            continue
+        if tree_lib.is_obstacle_free(parent_node, rand_node):
+            tree.insert_node(parent_node, rand_node)
+            k += 1
+            tree.rewire(neighbourhood, rand_node)
+            if reached_at_recharge(rand_node, power):
+                doRRT = False
+                path = tree.get_path(rand_node)
+        # if k >= constants.k_max:
+        #     doRRT = False
+        #     print(f"failed to find path in less than {constants.k_max} nodes")
+        #     path = None
+    return tree, path
 
 
 if __name__ == "__main__":

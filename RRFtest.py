@@ -68,7 +68,7 @@ def RRF(robot_state):
         forest.update_forest(new_tree)
         doRRT = True
         while doRRT:
-            rand_node = tree_lib.random_config(new_tree, constants.recharge_point, check_goal=True, neighbourhood=path)
+            rand_node = tree_lib.random_config(new_tree, constants.recharge_point, robot_state[0:2], check_goal=True, neighbourhood=path)
             nearest_node, nearest_node_distance = new_tree.find_nearest(rand_node)
             rand_node = tree_lib.new_config(rand_node, nearest_node, nearest_node_distance)
             tree_neighbourhood = new_tree.get_nodes_in_region(rand_node)
@@ -145,37 +145,38 @@ def RRFsim(robot_state, forest=None):
     initial_node = tree_lib.Node(x=robot_state[0:2], v=robot_state[2:4], theta=robot_state[4])
     k = 0
     if len(forest.tree_list) == 0:
-        tree, path = RRTtest.RRT(initial_node, constants.recharge_point)
+        tree, path = RRTtest.RRTsim(initial_node, constants.recharge_points, constants.initial_power)
         forest.update_forest(tree)
+        forest.goal = path[0].x
         return forest, path
     new_tree = tree_lib.Tree(root_node=initial_node)
     forest.update_forest(new_tree)
     old_tree = forest.tree_list[1]
     doRRT = True
     while doRRT:
-        rand_node = tree_lib.random_config(new_tree, constants.recharge_point, check_goal=True, neighbourhood=old_tree.path)
+        rand_node = tree_lib.random_config(new_tree, [forest.goal], robot_state, check_goal=True, neighbourhood=old_tree.path)
         nearest_node, nearest_node_distance = new_tree.find_nearest(rand_node)
         rand_node = tree_lib.new_config(rand_node, nearest_node, nearest_node_distance)
         tree_neighbourhood = new_tree.get_nodes_in_region(rand_node)
         parent_node = new_tree.choose_parent(rand_node, tree_neighbourhood)
         if parent_node is None or parent_node == "unsure":
             continue
+        k += 1
         if tree_lib.is_obstacle_free(parent_node, rand_node):
-            k += 1
             new_tree.insert_node(parent_node, rand_node)
             # new_tree.rewire(tree_neighbourhood, rand_node)
             p = random()
             if p <= constants.scan_forest_prob:
                 forest_neighbourhood = forest.get_path_neighbourhood(rand_node)
                 forest.check_tree_connection(rand_node, forest_neighbourhood)
-            if forest.checkgoal(constants.recharge_point):
+            if forest.checkgoal(forest.goal):
                 doRRT = False
             elif k >= constants.k_max:
                 doRRT = False
                 print(f"failed to find path in less than {constants.k_max} iterations")
         new_tree.added_nodes = []
     if k < constants.k_max:
-        recharge_point_node = new_tree.get_node_with_coord(constants.recharge_point)
+        recharge_point_node = new_tree.get_node_with_coord(forest.goal)
         path = new_tree.get_path(recharge_point_node)
         return path
     else:

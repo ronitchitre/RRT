@@ -9,6 +9,7 @@ class Forest:
         for tree in trees:
             tree_list.append(tree)
         self.tree_list = tree_list
+        self.goal = constants.recharge_points[0]
 
     
     def add_tree(self, tree):

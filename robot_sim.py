@@ -5,7 +5,7 @@ import RRFtest
 import RRTtest
 import constants
 
-robot_state = np.array([0, 0, 0, 1, np.pi / 2, 20])
+robot_state = np.array([0, 0, 0, 1, np.pi / 2, constants.initial_power])
 
 def plot_forest(forest, ax, path = None):
     new_tree = forest.tree_list[0]
@@ -45,18 +45,20 @@ while robot_state[1] < 6:
     RRFtest.RRFsim(robot_state, forest)
     path = forest.tree_list[0].path
     if path is None:
-        continue
-    if decide_if_recharge(robot_state, path[0].cost):
-        print("battery ran out", path[0].cost)
         cur_node = RRFtest.tree_lib.Node(robot_state[0:2], robot_state[2:4], robot_state[5])
-        final_node = constants.recharge_point
-        tree, path = RRTtest.RRT(cur_node, final_node)
+        tree, path = RRTtest.RRTsim(cur_node, constants.recharge_points, robot_state[5])
         forest = RRFtest.forest_lib.Forest(tree)
-        robot_state[5] = 15
+        forest.goal = path[0].x
+    if decide_if_recharge(robot_state, path[0].cost):
+        cur_node = RRFtest.tree_lib.Node(robot_state[0:2], robot_state[2:4], robot_state[5])
+        tree, path = RRTtest.RRTsim(cur_node, constants.recharge_points, path[0].cost)
+        forest = RRFtest.forest_lib.Forest(tree)
+        forest.goal = path[0].x
+        robot_state[5] = constants.initial_power
     ax.clear()
     plot_forest(forest, ax, path)
     plt.draw()
-    plt.pause(0.1)
+    plt.pause(0.5)
     robot_state[1] += constants.car_velocity
     robot_state[5] += constants.robot_power_onion
 

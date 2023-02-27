@@ -184,19 +184,19 @@ class Tree():
 
 
 
-def random_config(tree, final_point, check_goal=True, neighbourhood = None):
+def random_config(tree, final_points, robot_state, check_goal=True, neighbourhood = None):
     p = random()                                                                            
     if check_goal and p <= constants.goal_prob:
-        rand_node = Node(x = final_point)                                                                                                                                                             
+        rand_node = Node(x = choice(final_points))                                                                                                                                                             
     elif neighbourhood is not None and p <= constants.neigh_prob:
         rand_choice = np.random.choice(neighbourhood)
         rand_node = Node(x = rand_choice.x)
     else:
-        x_coord = round(uniform(0, constants.dimension_field[0]), 2)
-        y_coord = round(uniform(0, constants.dimension_field[1]), 2)
+        x_coord = round(uniform(robot_state[0], constants.dimension_field[0] + robot_state[0]), 3)
+        y_coord = round(uniform(robot_state[1], constants.dimension_field[1] + robot_state[1]), 3)
         new_coord = np.array([x_coord, y_coord])
         if list(new_coord) in tree.coord_list:
-            return random_config(tree, final_point, check_goal)
+            return random_config(tree, final_points, robot_state, check_goal)
         rand_node = Node(x=np.array([x_coord, y_coord]))
     # with open("test_cases/test.txt", "a") as file:
     #     file.write(f"{rand_node.x[0]} {rand_node.x[1]} \n") 
