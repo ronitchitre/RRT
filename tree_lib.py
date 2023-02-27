@@ -1,5 +1,5 @@
 import numpy as np
-from random import uniform, random
+from random import uniform, random, choice
 import car_lib
 import constants
 import obstacle_lib
@@ -38,6 +38,7 @@ class Tree():
         self.node_list = [root_node]
         self.coord_list = [list(root_node.x)]
         self.path = None
+        self.added_nodes = []
 
     def find_nearest(self, q_rand):
         nearest_node = "unsure"
@@ -81,6 +82,7 @@ class Tree():
         child_node.id = self.id
         self.node_list.append(child_node)
         self.coord_list.append(list(child_node.x))
+        self.added_nodes.append(list(child_node.x))
         self.update_subtree(child_node, forest)
 
     def update_subtree(self, node, forest=None):
@@ -96,6 +98,7 @@ class Tree():
                     child.cost = node.cost + distance
                     self.node_list.append(child)
                     self.coord_list.append(list(child.x))
+                    self.added_nodes.append(list(child.x))
                     self.update_subtree(child, forest)
                 except:
                     if forest is None:
@@ -182,9 +185,9 @@ class Tree():
 
 
 def random_config(tree, final_point, check_goal=True, neighbourhood = None):
-    p = random()
+    p = random()                                                                            
     if check_goal and p <= constants.goal_prob:
-        rand_node =  Node(x=final_point)
+        rand_node = Node(x = final_point)                                                                                                                                                             
     elif neighbourhood is not None and p <= constants.neigh_prob:
         rand_choice = np.random.choice(neighbourhood)
         rand_node = Node(x = rand_choice.x)

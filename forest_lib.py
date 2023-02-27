@@ -68,6 +68,7 @@ class Forest:
 
     def tree_building(self, new_node, link_node_old_tree, link_node_new_tree):
         old_tree = self.tree_list[link_node_old_tree.id]
+        old_path = old_tree.path
         new_tree = self.tree_list[new_node.id]
         new_tree.insert_node(new_node, link_node_new_tree, self)
 
@@ -76,6 +77,8 @@ class Forest:
                 child_car_new, distance = link_node_new_tree.propogate(child_node_old)
             except:
                 continue
+            # if child_node_old in old_path:
+            #     old_path.remove(child_node_old)
             child_node_new = tree_lib.Node(x=child_car_new.x, v=child_car_new.v,
              theta=child_car_new.theta, cost=(link_node_new_tree.cost + distance))
             self.tree_building(link_node_new_tree, child_node_old, child_node_new)
@@ -93,7 +96,7 @@ class Forest:
                     continue
                 child_node_new = tree_lib.Node(x=child_car_new.x, v=child_car_new.v,
                 theta=child_car_new.theta, cost=(link_node_new_tree.cost + distance))
-                self.tree_building(link_node_new_tree, child_node_old, child_node_new)
+                self.path_building(link_node_new_tree, child_node_old, child_node_new)
     
     def update_forest(self, tree):
         if len(self.tree_list) < constants.forest_trees:
@@ -108,7 +111,7 @@ class Forest:
     
     def checkgoal(self, goal):
         tree = self.tree_list[0]
-        if list(goal) in tree.coord_list:
+        if list(goal) in tree.added_nodes:
             return True
 
     def random_config(self, final_point, check_goal=True):

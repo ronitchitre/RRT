@@ -8,13 +8,14 @@ import tree_lib
 import RRTtest
 import constants
 
-ic = np.array([0, 3, 0, -1, np.pi / 2])
+ic = np.array([0, 0, 0, 1, np.pi / 2])
 
 def plot_forest(forest, path = None):
-    old_tree = forest.tree_list[1]
     new_tree = forest.tree_list[0]
-    old_tree_coords = np.array([np.array([x[0], x[1]]) for x in old_tree.coord_list])
-    plt.scatter(old_tree_coords[:, 0], old_tree_coords[:, 1], label='old_tree', marker=".", c="purple", alpha=0.5)
+    if len(forest.tree_list) > 1:
+        old_tree = forest.tree_list[1]
+        old_tree_coords = np.array([np.array([x[0], x[1]]) for x in old_tree.coord_list])
+        plt.scatter(old_tree_coords[:, 0], old_tree_coords[:, 1], label='old_tree', marker=".", c="purple", alpha=0.5)
     if path is not None:
         path_coord_x = [node.x[0] for node in path]
         path_coord_y = [node.x[1] for node in path]
@@ -140,31 +141,73 @@ def RRF(robot_state):
 # plt.legend()
 # plt.show()
 
-iterations = np.arange(0, 10, 1)
-time_array_0 = []
-time_array_1 = []
-time_array_2 = []
-time_array_3 = []
+def RRFsim(robot_state, forest=None):
+    initial_node = tree_lib.Node(x=robot_state[0:2], v=robot_state[2:4], theta=robot_state[4])
+    k = 0
+    if len(forest.tree_list) == 0:
+        tree, path = RRTtest.RRT(initial_node, constants.recharge_point)
+        forest.update_forest(tree)
+        return forest, path
+    new_tree = tree_lib.Tree(root_node=initial_node)
+    forest.update_forest(new_tree)
+    old_tree = forest.tree_list[1]
+    doRRT = True
+    while doRRT:
+        rand_node = tree_lib.random_config(new_tree, constants.recharge_point, check_goal=True, neighbourhood=old_tree.path)
+        nearest_node, nearest_node_distance = new_tree.find_nearest(rand_node)
+        rand_node = tree_lib.new_config(rand_node, nearest_node, nearest_node_distance)
+        tree_neighbourhood = new_tree.get_nodes_in_region(rand_node)
+        parent_node = new_tree.choose_parent(rand_node, tree_neighbourhood)
+        if parent_node is None or parent_node == "unsure":
+            continue
+        if tree_lib.is_obstacle_free(parent_node, rand_node):
+            k += 1
+            new_tree.insert_node(parent_node, rand_node)
+            # new_tree.rewire(tree_neighbourhood, rand_node)
+            p = random()
+            if p <= constants.scan_forest_prob:
+                forest_neighbourhood = forest.get_path_neighbourhood(rand_node)
+                forest.check_tree_connection(rand_node, forest_neighbourhood)
+            if forest.checkgoal(constants.recharge_point):
+                doRRT = False
+            elif k >= constants.k_max:
+                doRRT = False
+                print(f"failed to find path in less than {constants.k_max} iterations")
+        new_tree.added_nodes = []
+    if k < constants.k_max:
+        recharge_point_node = new_tree.get_node_with_coord(constants.recharge_point)
+        path = new_tree.get_path(recharge_point_node)
+        return path
+    else:
+        return None
 
-for _1 in iterations:
-    ic_timetest = np.array([0, 3, 1, 0, np.pi / 2])
-    print(_1)
-    _2, _3, time_array = RRF(ic_timetest)
-    print(time_array)
-    time_array_0.append(time_array[0])
-    time_array_1.append(time_array[1])
-    time_array_2.append(time_array[2])
-    time_array_3.append(time_array[3])
 
-plt.title("time analysis")
-plt.xlabel("test case")
-plt.ylabel("time")
-plt.plot(iterations, time_array_0, marker = "o", label = "tree 0")
-plt.plot(iterations, time_array_1, marker = "o", label = "tree 1")
-plt.plot(iterations, time_array_2, marker = "o", label = "tree 2")
-plt.plot(iterations, time_array_3, marker = "o", label = "tree 3")
-plt.legend()
-plt.show()
+if __name__ == "__main__":
+    iterations = np.arange(0, 10, 1)
+    time_array_0 = []
+    time_array_1 = []
+    time_array_2 = []
+    time_array_3 = []
+
+    for _1 in iterations:
+        ic_timetest = np.array([0, 0, 1, 0, np.pi / 2])
+        print(_1)
+        _2, _3, time_array = RRF(ic_timetest)
+        print(time_array)
+        time_array_0.append(time_array[0])
+        time_array_1.append(time_array[1])
+        time_array_2.append(time_array[2])
+        time_array_3.append(time_array[3])
+
+    plt.title("time analysis")
+    plt.xlabel("test case")
+    plt.ylabel("time")
+    plt.plot(iterations, time_array_0, marker = "o", label = "tree 0")
+    plt.plot(iterations, time_array_1, marker = "o", label = "tree 1")
+    plt.plot(iterations, time_array_2, marker = "o", label = "tree 2")
+    plt.plot(iterations, time_array_3, marker = "o", label = "tree 3")
+    plt.legend()
+    plt.show()
 
 
 
