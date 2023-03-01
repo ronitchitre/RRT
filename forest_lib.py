@@ -36,18 +36,19 @@ class Forest:
         return neighbour_nodes
     
 
-    def check_tree_connection(self, rand_node, neighbourhood):
+    def check_tree_connection(self, rand_node, neighbourhood, type="path"):
         distance_array = []
         car_array = []
         selected_node = False
         for node in neighbourhood:
-            try:
-                new_car, distance = rand_node.propogate(node)
-            except:
-                continue
-            selected_node = True
-            distance_array.append(distance)
-            car_array.append(new_car)
+            if node.part_of_path:
+                try:
+                    new_car, distance = rand_node.propogate(node)
+                except:
+                    continue
+                selected_node = True
+                distance_array.append(distance)
+                car_array.append(new_car)
         if selected_node:
             min_cost_index = distance_array.index(min(distance_array))
             min_distance = distance_array[min_cost_index]
@@ -55,7 +56,10 @@ class Forest:
             link_node_old_tree = neighbourhood[min_cost_index]
             link_node_new_tree = tree_lib.Node(x=min_car.x, v=min_car.v, theta=min_car.theta)
             link_node_new_tree.cost = min_distance + rand_node.cost
-            self.tree_building(rand_node, link_node_old_tree, link_node_new_tree)
+            if type == "path":
+                self.path_building(rand_node, link_node_old_tree, link_node_new_tree)
+            else:
+                self.tree_building(rand_node, link_node_old_tree, link_node_new_tree)
 
     def tree_cutting(self, new_node, link_node):
         old_tree = self.tree_list[link_node.id]

@@ -18,7 +18,7 @@ def RRT(initial_node, final_point, testing = False):
                 test_nodes.append(tree_lib.Node(x = np.array([x_coord, y_coord])))
     while doRRT:
         if not testing:
-            rand_node = tree_lib.random_config(tree, final_point, robot_state=initial_node.x)
+            rand_node = tree_lib.random_config(tree, [final_point], robot_state=initial_node.x)
         else:
             rand_node = test_nodes[test_counter]
             test_counter += 1
@@ -33,7 +33,7 @@ def RRT(initial_node, final_point, testing = False):
         if tree_lib.is_obstacle_free(parent_node, rand_node):
             tree.insert_node(parent_node, rand_node)
             k += 1
-            tree.rewire(neighbourhood, rand_node)
+            # tree.rewire(neighbourhood, rand_node)
             if np.linalg.norm(rand_node.x - final_point) <= 0.05:
                 doRRT = False
                 path = tree.get_path(rand_node)

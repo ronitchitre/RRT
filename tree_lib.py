@@ -192,8 +192,8 @@ def random_config(tree, final_points, robot_state, check_goal=True, neighbourhoo
         rand_choice = np.random.choice(neighbourhood)
         rand_node = Node(x = rand_choice.x)
     else:
-        x_coord = round(uniform(robot_state[0], constants.dimension_field[0] + robot_state[0]), 3)
-        y_coord = round(uniform(robot_state[1], constants.dimension_field[1] + robot_state[1]), 3)
+        x_coord = round(uniform(0, constants.dimension_field[0]), 2)
+        y_coord = round(uniform(0, constants.dimension_field[1]), 2)
         new_coord = np.array([x_coord, y_coord])
         if list(new_coord) in tree.coord_list:
             return random_config(tree, final_points, robot_state, check_goal)

@@ -33,13 +33,13 @@ def plot_forest(forest, path = None):
     plt.legend()
     plt.show()
 
-def RRF(robot_state):
+def RRF(robot_state, end_y = 4, type="path"):
     tree_list = []
     path_list = []
     time_array = []
     initial_node = tree_lib.Node(x=robot_state[0:2], v=robot_state[2:4], theta=robot_state[4])
     start_time = time.time()
-    initial_tree, path = RRTtest.RRT(initial_node, constants.recharge_point)
+    initial_tree, path = RRTtest.RRT(initial_node, constants.recharge_points[0])
     end_time = time.time()
     print("initial tree made")
     time_array.append((end_time - start_time))
@@ -48,8 +48,7 @@ def RRF(robot_state):
     forest_neighbourhood = []
 
     forest = forest_lib.Forest(initial_tree)
-    robot_state_ind = 0
-    while robot_state_ind < 4:
+    while robot_state[1] < end_y:
         k = 0
 
         # fig, ax = plt.subplots()
@@ -68,7 +67,10 @@ def RRF(robot_state):
         forest.update_forest(new_tree)
         doRRT = True
         while doRRT:
-            rand_node = tree_lib.random_config(new_tree, constants.recharge_point, robot_state[0:2], check_goal=True, neighbourhood=path)
+            if type == "path":
+                rand_node = tree_lib.random_config(new_tree, [constants.recharge_points[0]], robot_state[0:2], check_goal=True, neighbourhood=path)
+            if type == "tree":
+                rand_node = tree_lib.random_config(new_tree, [constants.recharge_points[0]], robot_state[0:2], check_goal=True)
             nearest_node, nearest_node_distance = new_tree.find_nearest(rand_node)
             rand_node = tree_lib.new_config(rand_node, nearest_node, nearest_node_distance)
             tree_neighbourhood = new_tree.get_nodes_in_region(rand_node)
@@ -82,8 +84,8 @@ def RRF(robot_state):
                 p = random()
                 if p <= constants.scan_forest_prob:
                     forest_neighbourhood = forest.get_path_neighbourhood(rand_node)
-                    forest.check_tree_connection(rand_node, forest_neighbourhood)
-                if forest.checkgoal(constants.recharge_point):
+                    forest.check_tree_connection(rand_node, forest_neighbourhood, type)
+                if forest.checkgoal(constants.recharge_points[0]):
                     doRRT = False
                 if k >= constants.k_max:
                     doRRT = False
@@ -96,20 +98,19 @@ def RRF(robot_state):
                 # plt.pause(0.1)
 
         if k < constants.k_max:
-            recharge_point_node = new_tree.get_node_with_coord(constants.recharge_point)
+            recharge_point_node = new_tree.get_node_with_coord(constants.recharge_points[0])
             path = new_tree.get_path(recharge_point_node)
         end_time = time.time()
         time_array.append((end_time - start_time))
 
-        if k < constants.k_max:
-            plot_forest(forest, path)
-        else:
-            plot_forest(forest)
+        # if k < constants.k_max:
+        #     plot_forest(forest, path)
+        # else:
+        #     plot_forest(forest)
         if path is not None:
             path_list.append(path.copy())
         tree_list.append(new_tree.coord_list.copy())
         robot_state += constants.robot_velocity
-        robot_state_ind += 1
     return tree_list, path_list, time_array
 
 # tree_list, path_list, time_array = RRF(ic)
@@ -184,29 +185,25 @@ def RRFsim(robot_state, forest=None):
 
 
 if __name__ == "__main__":
-    iterations = np.arange(0, 10, 1)
-    time_array_0 = []
-    time_array_1 = []
-    time_array_2 = []
-    time_array_3 = []
+    n_test = 5
+    end_y = 0.8
+    time_array = []
+    steps = int(end_y / constants.robot_velocity[1]) + 1
 
-    for _1 in iterations:
-        ic_timetest = np.array([0, 0, 1, 0, np.pi / 2])
+    for _1 in range(n_test):
+        ic_timetest = np.array([0, 0, 0, 1, np.pi / 2])
         print(_1)
-        _2, _3, time_array = RRF(ic_timetest)
-        print(time_array)
-        time_array_0.append(time_array[0])
-        time_array_1.append(time_array[1])
-        time_array_2.append(time_array[2])
-        time_array_3.append(time_array[3])
+        _2, _3, time_array_iter = RRF(ic_timetest, end_y, type="tree")
+        time_array = time_array + time_array_iter
+        print(time_array_iter)
+        time_array
 
+    tree_iters = np.arange(0, steps, 1)
+    for i in range(n_test):
+        plt.plot(tree_iters, time_array[steps * i : steps * (i + 1)], label=f"{i}th tree", marker="o")
+    plt.xlabel('test cases')
+    plt.ylabel('time')
     plt.title("time analysis")
-    plt.xlabel("test case")
-    plt.ylabel("time")
-    plt.plot(iterations, time_array_0, marker = "o", label = "tree 0")
-    plt.plot(iterations, time_array_1, marker = "o", label = "tree 1")
-    plt.plot(iterations, time_array_2, marker = "o", label = "tree 2")
-    plt.plot(iterations, time_array_3, marker = "o", label = "tree 3")
     plt.legend()
     plt.show()
 
