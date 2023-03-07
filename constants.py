@@ -18,13 +18,13 @@ k_max = 2500
 
 forest_neighbour = 0.08
 forest_trees = 2
-scan_forest_prob = 0.7
+scan_forest_prob = 1
 
-dimension_field = np.array([5, 5])
-obstacle_line = [np.array([3, 0, 3, 3])]
+dimension_field = np.array([4, 4])
+obstacle_line = [np.array([2, 0, 2, 3])]
 # obstacle_line = [np.array([0.7, 1, 1.3, 1])]
-recharge_points = [np.array([4, 1])]
-# recharge_points = [np.array([1, 0.8]), np.array([1, 1.6])]
+recharge_points = [np.array([3, 1])]
+# recharge_points = [np.array([2, 1.5]), np.array([2, 3.5])]
 
 goal_prob = 0.2
 neigh_prob = 0.5

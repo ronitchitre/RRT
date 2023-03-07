@@ -33,7 +33,7 @@ def plot_forest(forest, path = None):
     plt.legend()
     plt.show()
 
-def RRF(robot_state, end_y = 4, type="path"):
+def RRF(robot_state, end_y, type="path"):
     tree_list = []
     path_list = []
     time_array = []
@@ -90,6 +90,7 @@ def RRF(robot_state, end_y = 4, type="path"):
                 if k >= constants.k_max:
                     doRRT = False
                     print(f"failed to find path in less than {constants.k_max} iterations")
+            new_tree.added_nodes = []
                 
                 # x_data = [coord[0] for coord in new_tree.coord_list]
                 # y_data = [coord[1] for coord in new_tree.coord_list]
@@ -185,27 +186,44 @@ def RRFsim(robot_state, forest=None):
 
 
 if __name__ == "__main__":
-    n_test = 5
+    n_test = 10
     end_y = 0.8
-    time_array = []
+    avg_time_path = np.zeros(10)
+    avg_time_tree = np.zeros(10)
     steps = int(end_y / constants.robot_velocity[1]) + 1
 
-    for _1 in range(n_test):
-        ic_timetest = np.array([0, 0, 0, 1, np.pi / 2])
-        print(_1)
-        _2, _3, time_array_iter = RRF(ic_timetest, end_y, type="tree")
-        time_array = time_array + time_array_iter
-        print(time_array_iter)
-        time_array
-
-    tree_iters = np.arange(0, steps, 1)
     for i in range(n_test):
-        plt.plot(tree_iters, time_array[steps * i : steps * (i + 1)], label=f"{i}th tree", marker="o")
-    plt.xlabel('test cases')
-    plt.ylabel('time')
-    plt.title("time analysis")
+        ic_timetest = np.array([0, 0, 0, 1, np.pi / 2])
+        _1, _2, time_array_iter = RRF(ic_timetest, end_y, type="path")
+        avg_time_path += np.array(time_array_iter)
+        print("path", time_array_iter)
+    avg_time_path = avg_time_path / n_test
+
+    for i in range(n_test):
+        ic_timetest = np.array([0, 0, 0, 1, np.pi / 2])
+        _1, _2, time_array_iter = RRF(ic_timetest, end_y, type="tree")
+        avg_time_tree += np.array(time_array_iter)
+        print("tree", time_array_iter)
+    avg_time_tree = avg_time_tree / n_test
+
+    y_coords = np.linspace(0, 10, 10)
+    plt.plot(y_coords, avg_time_path, "-o", label="path")
+    plt.plot(y_coords, avg_time_tree, "-o", label="tree")
+    plt.xlabel("postion at which path found")
+    plt.ylabel("time")
+    plt.title("time averaged over test cases")
     plt.legend()
     plt.show()
+
+    # tree_iters = np.arange(0, steps, 1)
+    # for i in range(n_test):
+    #     plt.plot(tree_iters, time_array[steps * i : steps * (i + 1)], label=f"{i}th tree", marker="o")
+    # plt.xlabel('test cases')
+    # plt.ylabel('time')
+    # plt.title("time analysis")
+    # plt.legend()
+    # plt.show()
+    
 
 
 
