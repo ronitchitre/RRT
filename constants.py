@@ -1,7 +1,7 @@
 import numpy as np
 pi = np.pi
 
-car_length = 0.01
+car_length = 1
 car_velocity = 0.1
 max_ster_angle = 40 * pi / 180
 max_turn_rate = np.tan(max_ster_angle) * car_velocity / car_length

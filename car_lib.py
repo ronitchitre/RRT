@@ -55,18 +55,19 @@ class Car:
         if math.isclose(dist_between_nodes, 0.0):
             return "invalid"
         omega = 2 * constants.car_velocity * np.sin(alpha) / dist_between_nodes
-        new_x = des_node.x
+        # if abs(omega) > constants.max_turn_rate or abs(alpha) > np.pi / 2:
+        #     return "invalid"
         if abs(omega) > constants.max_turn_rate or abs(alpha) > np.pi / 2:
             if abs(alpha) > np.pi / 2:
                 return "invalid"
             omega = np.sign(omega) * constants.max_turn_rate
             displacement = dist_between_nodes * np.array([np.cos(alpha), np.sin(alpha)])
             new_x = self.x + displacement
-        # distance = 2 * theta * (constants.car_velocity / omega)
         if omega != 0:
             time_taken = 2 * alpha / omega
         else:
             time_taken = dist_between_nodes / constants.car_velocity
+        new_x = des_node.x
         distance = time_taken * constants.car_velocity
         new_v = rotate(self.v, 2 * alpha, constants.car_velocity)
         new_theta = self.theta + omega * time_taken

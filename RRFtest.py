@@ -80,7 +80,7 @@ def RRF(robot_state, end_y, type="path"):
             if tree_lib.is_obstacle_free(parent_node, rand_node):
                 k += 1
                 new_tree.insert_node(parent_node, rand_node)
-                # new_tree.rewire(tree_neighbourhood, rand_node)
+                new_tree.rewire(tree_neighbourhood, rand_node)
                 p = random()
                 if p <= constants.scan_forest_prob:
                     forest_neighbourhood = forest.get_path_neighbourhood(rand_node)

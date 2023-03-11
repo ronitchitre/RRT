@@ -41,7 +41,7 @@ class Forest:
         car_array = []
         selected_node = False
         for node in neighbourhood:
-            if node.part_of_path:
+            if node.part_of_path or type == "tree":
                 try:
                     new_car, distance = rand_node.propogate(node)
                 except:
