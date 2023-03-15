@@ -33,7 +33,7 @@ def RRT(initial_node, final_point, testing = False):
         if tree_lib.is_obstacle_free(parent_node, rand_node):
             tree.insert_node(parent_node, rand_node)
             k += 1
-            # tree.rewire(neighbourhood, rand_node)
+            tree.rewire(neighbourhood, rand_node)
             if np.linalg.norm(rand_node.x - final_point) <= 0.05:
                 doRRT = False
                 path = tree.get_path(rand_node)
@@ -96,9 +96,9 @@ def RRTsim(initial_node, final_points, power):
 
 
 if __name__ == "__main__":
-    ic = np.array([0, 1, 0, 1, np.pi])
+    ic = np.array([0, 0, 0, 1, np.pi / 2])
     initial_node = tree_lib.Node(x=ic[0:2], v=ic[2:4], theta=ic[4])
-    goal_point = np.array([2, 2])
+    goal_point = constants.recharge_points[0]
     tree, path = RRT(initial_node, goal_point, testing=False)
     plot_tree(tree, path)
     # print(tree.get_path(goal_point))

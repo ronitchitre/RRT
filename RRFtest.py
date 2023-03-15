@@ -17,8 +17,8 @@ def plot_forest(forest, path = None):
         old_tree_coords = np.array([np.array([x[0], x[1]]) for x in old_tree.coord_list])
         plt.scatter(old_tree_coords[:, 0], old_tree_coords[:, 1], label='old_tree', marker=".", c="purple", alpha=0.5)
     if path is not None:
-        path_coord_x = [node.x[0] for node in path]
-        path_coord_y = [node.x[1] for node in path]
+        path_coord_x = [node.x[0] for node in path if node.part_of_path]
+        path_coord_y = [node.x[1] for node in path if node.part_of_path]
         plt.plot(path_coord_x, path_coord_y, label='path', marker='o', color='blue', linewidth=2)
     for obstacle in constants.obstacle_line:
         obstacle_x = np.array([obstacle[0], obstacle[2]])
@@ -98,16 +98,16 @@ def RRF(robot_state, end_y, type="path"):
                 # fig.canvas.draw()
                 # plt.pause(0.1)
 
-        if k < constants.k_max:
-            recharge_point_node = new_tree.get_node_with_coord(constants.recharge_points[0])
-            path = new_tree.get_path(recharge_point_node)
         end_time = time.time()
         time_array.append((end_time - start_time))
 
+
         # if k < constants.k_max:
-        #     plot_forest(forest, path)
+        #     plot_forest(forest, new_tree.path)
         # else:
         #     plot_forest(forest)
+
+
         if path is not None:
             path_list.append(path.copy())
         tree_list.append(new_tree.coord_list.copy())
@@ -166,7 +166,7 @@ def RRFsim(robot_state, forest=None):
         k += 1
         if tree_lib.is_obstacle_free(parent_node, rand_node):
             new_tree.insert_node(parent_node, rand_node)
-            # new_tree.rewire(tree_neighbourhood, rand_node)
+            new_tree.rewire(tree_neighbourhood, rand_node)
             p = random()
             if p <= constants.scan_forest_prob:
                 forest_neighbourhood = forest.get_path_neighbourhood(rand_node)
@@ -178,9 +178,7 @@ def RRFsim(robot_state, forest=None):
                 print(f"failed to find path in less than {constants.k_max} iterations")
         new_tree.added_nodes = []
     if k < constants.k_max:
-        recharge_point_node = new_tree.get_node_with_coord(forest.goal)
-        path = new_tree.get_path(recharge_point_node)
-        return path
+        return new_tree.path
     else:
         return None
 

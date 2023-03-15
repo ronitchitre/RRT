@@ -27,7 +27,7 @@ recharge_points = [np.array([3, 1])]
 # recharge_points = [np.array([2, 1.5]), np.array([2, 3.5])]
 
 goal_prob = 0.2
-neigh_prob = 0.5
+neigh_prob = 0.0
 
 
 def distance(node1, node2):

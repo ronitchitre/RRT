@@ -92,7 +92,6 @@ class Forest:
         old_tree = self.tree_list[link_node_old_tree.id]
         new_tree = self.tree_list[new_node.id]
         new_tree.insert_node(new_node, link_node_new_tree, self)
-
         for child_node_old in link_node_old_tree.child_list:
             if child_node_old.part_of_path:
                 try:
@@ -116,8 +115,11 @@ class Forest:
     
     def checkgoal(self, goal):
         tree = self.tree_list[0]
-        if list(goal) in tree.added_nodes:
-            return True
+        for node in tree.added_nodes:
+            if np.linalg.norm(node.x - goal) < 0.1:
+                tree.get_path(node)
+                return True
+        return False
 
     def random_config(self, final_point, check_goal=True):
         p = random()

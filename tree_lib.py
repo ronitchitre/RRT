@@ -82,7 +82,7 @@ class Tree():
         child_node.id = self.id
         self.node_list.append(child_node)
         self.coord_list.append(list(child_node.x))
-        self.added_nodes.append(list(child_node.x))
+        self.added_nodes.append(child_node)
         # self.update_subtree(child_node, forest)
 
     def update_subtree(self, node, forest=None):
