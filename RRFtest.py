@@ -13,9 +13,14 @@ ic = np.array([0, 0, 0, 1, np.pi / 2])
 def plot_forest(forest, path = None):
     new_tree = forest.tree_list[0]
     if len(forest.tree_list) > 1:
-        old_tree = forest.tree_list[1]
-        old_tree_coords = np.array([np.array([x[0], x[1]]) for x in old_tree.coord_list])
-        plt.scatter(old_tree_coords[:, 0], old_tree_coords[:, 1], label='old_tree', marker=".", c="purple", alpha=0.5)
+        old_trees = forest.tree_list[1:]
+        old_tree_coords = []
+        for tree in old_trees:
+           old_tree_coords.append(np.array([np.array([x[0], x[1]]) for x in tree.coord_list]))
+        j = 0
+        for tree_coords in old_tree_coords:
+            plt.scatter(tree_coords[:, 0], tree_coords[:, 1], label=f'{j}th old_tree', marker=".", alpha=0.5)
+            j += 1
     if path is not None:
         path_coord_x = [node.x[0] for node in path if node.part_of_path]
         path_coord_y = [node.x[1] for node in path if node.part_of_path]
@@ -40,6 +45,7 @@ def RRF(robot_state, end_y, type="path"):
     initial_node = tree_lib.Node(x=robot_state[0:2], v=robot_state[2:4], theta=robot_state[4])
     start_time = time.time()
     initial_tree, path = RRTtest.RRT(initial_node, constants.recharge_points[0])
+    RRTtest.plot_tree(initial_tree, path)
     end_time = time.time()
     print("initial tree made")
     time_array.append((end_time - start_time))
@@ -102,10 +108,10 @@ def RRF(robot_state, end_y, type="path"):
         time_array.append((end_time - start_time))
 
 
-        # if k < constants.k_max:
-        #     plot_forest(forest, new_tree.path)
-        # else:
-        #     plot_forest(forest)
+        if k < constants.k_max:
+            plot_forest(forest, new_tree.path)
+        else:
+            plot_forest(forest)
 
 
         if path is not None:
@@ -185,9 +191,9 @@ def RRFsim(robot_state, forest=None):
 
 if __name__ == "__main__":
     n_test = 10
-    end_y = 0.8
-    avg_time_path = np.zeros(10)
-    avg_time_tree = np.zeros(10)
+    end_y = 1.8
+    avg_time_path = np.zeros(9)
+    avg_time_tree = np.zeros(9)
     steps = int(end_y / constants.robot_velocity[1]) + 1
 
     for i in range(n_test):
@@ -201,13 +207,13 @@ if __name__ == "__main__":
         ic_timetest = np.array([0, 0, 0, 1, np.pi / 2])
         _1, _2, time_array_iter = RRF(ic_timetest, end_y, type="tree")
         avg_time_tree += np.array(time_array_iter)
-        print("tree", time_array_iter)
+        print("path", time_array_iter)
     avg_time_tree = avg_time_tree / n_test
 
-    y_coords = np.linspace(0, 10, 10)
+    y_coords = np.arange(0, 9, 1)
     plt.plot(y_coords, avg_time_path, "-o", label="path")
     plt.plot(y_coords, avg_time_tree, "-o", label="tree")
-    plt.xlabel("postion at which path found")
+    plt.xlabel("position at which path found")
     plt.ylabel("time")
     plt.title("time averaged over test cases")
     plt.legend()

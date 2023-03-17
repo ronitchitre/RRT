@@ -21,7 +21,7 @@ forest_trees = 2
 scan_forest_prob = 1
 
 dimension_field = np.array([4, 4])
-obstacle_line = [np.array([2, 0, 2, 3])]
+obstacle_line = [np.array([2, 0, 2, 2]), np.array([2, 2, 3, 2])]
 # obstacle_line = [np.array([0.7, 1, 1.3, 1])]
 recharge_points = [np.array([3, 1])]
 # recharge_points = [np.array([2, 1.5]), np.array([2, 3.5])]

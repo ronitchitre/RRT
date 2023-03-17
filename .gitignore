@@ -131,5 +131,6 @@ dmypy.json
 # Private Token
 token.txt
 scratch.py
+scratch2.py
 
 to_do
