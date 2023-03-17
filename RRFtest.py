@@ -49,6 +49,7 @@ def RRF(robot_state, end_y, type="path"):
     end_time = time.time()
     print("initial tree made")
     time_array.append((end_time - start_time))
+    robot_state += constants.robot_velocity
     tree_nodes = initial_tree.coord_list.copy()
     tree_list.append(tree_nodes)
     forest_neighbourhood = []
@@ -149,11 +150,12 @@ def RRF(robot_state, end_y, type="path"):
 # plt.legend()
 # plt.show()
 
-def RRFsim(robot_state, forest=None):
+def RRFsim(robot_state, forest):
     initial_node = tree_lib.Node(x=robot_state[0:2], v=robot_state[2:4], theta=robot_state[4])
     k = 0
     if len(forest.tree_list) == 0:
-        tree, path = RRTtest.RRTsim(initial_node, constants.recharge_points, constants.initial_power)
+        tree, path = RRTtest.RRTsim(initial_node, constants.recharge_points, robot_state[5])
+        # RRTtest.plot_tree(initial_tree, path)
         forest.update_forest(tree)
         forest.goal = path[0].x
         return forest, path
@@ -172,7 +174,7 @@ def RRFsim(robot_state, forest=None):
         k += 1
         if tree_lib.is_obstacle_free(parent_node, rand_node):
             new_tree.insert_node(parent_node, rand_node)
-            new_tree.rewire(tree_neighbourhood, rand_node)
+            # new_tree.rewire(tree_neighbourhood, rand_node)
             p = random()
             if p <= constants.scan_forest_prob:
                 forest_neighbourhood = forest.get_path_neighbourhood(rand_node)
@@ -184,6 +186,7 @@ def RRFsim(robot_state, forest=None):
                 print(f"failed to find path in less than {constants.k_max} iterations")
         new_tree.added_nodes = []
     if k < constants.k_max:
+        forest.goal = new_tree.path[0].x
         return new_tree.path
     else:
         return None
@@ -197,7 +200,7 @@ if __name__ == "__main__":
     steps = int(end_y / constants.robot_velocity[1]) + 1
 
     for i in range(n_test):
-        ic_timetest = np.array([0, 0, 0, 1, np.pi / 2])
+        ic_timetest = np.array([0, 0, 0, 1, np.pi / 2, 10])
         _1, _2, time_array_iter = RRF(ic_timetest, end_y, type="path")
         avg_time_path += np.array(time_array_iter)
         print("path", time_array_iter)

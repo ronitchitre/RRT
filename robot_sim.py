@@ -5,29 +5,43 @@ import RRFtest
 import RRTtest
 import constants
 
-robot_state = np.array([0, 0, 0, 1, np.pi / 2, constants.initial_power])
+ic_power = 600
+robot_state = np.array([3, 0, 0, 1, np.pi / 2, ic_power])
+trajectory = [np.array([3, 0, 3, 3]), np.array([3, 3, 0, 3])]
 
-def plot_forest(forest, ax, path = None):
+def plot_forest(forest, path = None):
     new_tree = forest.tree_list[0]
     if len(forest.tree_list) > 1:
-        old_tree = forest.tree_list[1]
-        old_tree_coords = np.array([np.array([x[0], x[1]]) for x in old_tree.coord_list])
-        ax.scatter(old_tree_coords[:, 0], old_tree_coords[:, 1], label='old_tree', marker=".", c="purple", alpha=0.5)
+        old_trees = forest.tree_list[1:]
+        old_tree_coords = []
+        for tree in old_trees:
+           old_tree_coords.append(np.array([np.array([x[0], x[1]]) for x in tree.coord_list]))
+        j = 0
+        for tree_coords in old_tree_coords:
+            plt.scatter(tree_coords[:, 0], tree_coords[:, 1], label=f'{j}th old_tree', marker=".", alpha=0.5)
+            j += 1
     if path is not None:
-        path_coord_x = [node.x[0] for node in path]
-        path_coord_y = [node.x[1] for node in path]
-        ax.plot(path_coord_x, path_coord_y, label='path', marker='o', color='blue', linewidth=2)
+        path_coord_x = [node.x[0] for node in path if node.part_of_path]
+        path_coord_y = [node.x[1] for node in path if node.part_of_path]
+        plt.plot(path_coord_x, path_coord_y, label='path', marker='o', color='blue', linewidth=2)
     for obstacle in constants.obstacle_line:
         obstacle_x = np.array([obstacle[0], obstacle[2]])
         obstacle_y = np.array([obstacle[1], obstacle[3]])
-        ax.plot(obstacle_x, obstacle_y, label='obstacle', color='red', linewidth=5)
-    new_tree_coords = np.array([np.array([x[0], x[1]]) for x in new_tree.coord_list])
-    ax.scatter(new_tree_coords[:, 0], new_tree_coords[:, 1], label='new_tree', marker=".", c="yellow", alpha=1)
 
-    # ax.xlabel('x')
-    # ax.ylabel('y')
-    # ax.title('RRF path')
-    # ax.legend()
+    for line in trajectory:
+        line_x = np.array([line[0], line[2]])
+        line_y = np.array([line[1], line[3]])
+        plt.plot(line_x, line_y, label='robot trajectory', color='pink', linewidth=3, alpha = 0.7)
+    new_tree_coords = np.array([np.array([x[0], x[1]]) for x in new_tree.coord_list])
+    plt.scatter(new_tree_coords[:, 0], new_tree_coords[:, 1], label='new_tree', marker=".", c="yellow", alpha=1)
+
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.ylim(0, constants.dimension_field[1])
+    plt.xlim(0, constants.dimension_field[0])
+    plt.title('RRF path')
+    plt.legend()
+    plt.show()
 
 def decide_if_recharge(robot_state, cost):
     power_required = cost * constants.distance_to_power
@@ -37,11 +51,8 @@ def decide_if_recharge(robot_state, cost):
 
 
 forest = RRFtest.forest_lib.Forest()
-fig, ax = plt.subplots()
-plt.show(block=False)
-k = 0
 
-while robot_state[1] < 6:
+while True:
     RRFtest.RRFsim(robot_state, forest)
     path = forest.tree_list[0].path
     if path is None:
@@ -50,15 +61,19 @@ while robot_state[1] < 6:
         forest = RRFtest.forest_lib.Forest(tree)
         forest.goal = path[0].x
     if decide_if_recharge(robot_state, path[0].cost):
-        cur_node = RRFtest.tree_lib.Node(robot_state[0:2], robot_state[2:4], robot_state[5])
+        new_power = ic_power - (1 * path[0].cost * constants.distance_to_power)
+        print(f"recharge now {new_power}")
+        cur_node = RRFtest.tree_lib.Node(robot_state[0:2], robot_state[2:4], new_power)
         tree, path = RRTtest.RRTsim(cur_node, constants.recharge_points, path[0].cost)
         forest = RRFtest.forest_lib.Forest(tree)
         forest.goal = path[0].x
-        robot_state[5] = constants.initial_power
-    ax.clear()
-    plot_forest(forest, ax, path)
+        robot_state[5] = new_power
+    plot_forest(forest, path)
     plt.draw()
-    plt.pause(0.5)
-    robot_state[1] += constants.car_velocity
+    robot_state += constants.robot_velocity
     robot_state[5] += constants.robot_power_onion
+    if robot_state[1] >= 3:
+        constants.robot_velocity = constants.car_velocity * np.array([-1, 0, 0, 0, 0, 0])
+    print(robot_state[5], path[0].cost)
+
 

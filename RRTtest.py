@@ -64,7 +64,7 @@ def plot_tree(tree, path):
 
 def reached_at_recharge(rand_node, power):
     for recharge_point in constants.recharge_points:
-        if np.linalg.norm(recharge_point - rand_node.x) == 0 and rand_node.cost <= power:
+        if np.linalg.norm(recharge_point - rand_node.x) <= 0.1:
             return True
     return False
 

@@ -2,13 +2,13 @@ import numpy as np
 pi = np.pi
 
 car_length = 1
-car_velocity = 0.1
+car_velocity = 0.2
 max_ster_angle = 40 * pi / 180
 max_turn_rate = np.tan(max_ster_angle) * car_velocity / car_length
-robot_velocity = car_velocity * np.array([0, 1, 0, 0, 0])
+robot_velocity = car_velocity * np.array([0, 1, 0, 0, 0, 0])
 distance_to_power = 1
-safety_factor = 0.5
-robot_power_onion = -1.5
+safety_factor = 80
+robot_power_onion = -30
 initial_power = 20
 
 N_for_rk4 = 5
@@ -20,10 +20,10 @@ forest_neighbour = 0.08
 forest_trees = 2
 scan_forest_prob = 1
 
-dimension_field = np.array([4, 4])
-obstacle_line = [np.array([2, 0, 2, 2]), np.array([2, 2, 3, 2])]
+dimension_field = np.array([6, 6])
+obstacle_line = []
 # obstacle_line = [np.array([0.7, 1, 1.3, 1])]
-recharge_points = [np.array([3, 1])]
+recharge_points = [np.array([5, 1]), np.array([1, 5])]
 # recharge_points = [np.array([2, 1.5]), np.array([2, 3.5])]
 
 goal_prob = 0.2
