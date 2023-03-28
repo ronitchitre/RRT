@@ -52,7 +52,7 @@ class Car:
         des_direction = des_node.x - self.x
         alpha = ang_between(self.v, des_direction)
         dist_between_nodes = np.linalg.norm(des_direction)
-        if math.isclose(dist_between_nodes, 0.0):
+        if dist_between_nodes < 0.05 or dist_between_nodes > 0.08:
             return "invalid"
         omega = 2 * constants.car_velocity * np.sin(alpha) / dist_between_nodes
         # if abs(omega) > constants.max_turn_rate or abs(alpha) > np.pi / 2:
@@ -68,7 +68,7 @@ class Car:
         else:
             time_taken = dist_between_nodes / constants.car_velocity
         new_x = des_node.x
-        distance = time_taken * constants.car_velocity
+        distance = time_taken * constants.car_velocity * constants.distance_to_power
         new_v = rotate(self.v, 2 * alpha, constants.car_velocity)
         new_theta = self.theta + omega * time_taken
         new_car = Car(new_x, new_v, new_theta)

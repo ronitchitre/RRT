@@ -85,7 +85,7 @@ class Forest:
             # if child_node_old in old_path:
             #     old_path.remove(child_node_old)
             child_node_new = tree_lib.Node(x=child_car_new.x, v=child_car_new.v,
-             theta=child_car_new.theta, cost=(link_node_new_tree.cost + distance))
+            theta=child_car_new.theta, cost=(link_node_new_tree.cost + distance))
             self.tree_building(link_node_new_tree, child_node_old, child_node_new)
 
     def path_building(self, new_node, link_node_old_tree, link_node_new_tree):

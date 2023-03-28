@@ -83,7 +83,7 @@ class Tree():
         self.node_list.append(child_node)
         self.coord_list.append(list(child_node.x))
         self.added_nodes.append(child_node)
-        # self.update_subtree(child_node, forest)
+        self.update_subtree(child_node, forest)
 
     def update_subtree(self, node, forest=None):
         if len(node.child_list) == 0:
@@ -96,22 +96,20 @@ class Tree():
                     child.v = new_car.v
                     child.theta = new_car.theta
                     child.cost = node.cost + distance
-                    self.node_list.append(child)
-                    self.coord_list.append(list(child.x))
-                    self.added_nodes.append(list(child.x))
+                    # self.node_list.append(child)
+                    # self.coord_list.append(list(child.x))
+                    # self.added_nodes.append(child)
                     self.update_subtree(child, forest)
                 except:
-                    if forest is None:
-                        if child.id != -1:
-                            self.remove_connection(node, child)
-                            self.remove_subtree(child)
+                    if child.id != -1:
+                        self.remove_connection(node, child)
+                        self.remove_subtree(child)
                     else:
                         continue
+                    continue
     
     def remove_connection(self, parent_node, child_node):
         parent_node.child_list.remove(child_node)
-        if child_node not in self.node_list:
-            print(f"child node with id {child_node.id} not in list. It is at {child_node.x}")
         self.node_list.remove(child_node)
         self.coord_list.remove(list(child_node.x))
         child_node.parent = None 
@@ -122,9 +120,6 @@ class Tree():
         # self.remove_connection(node.parent, node)
         for child in node.child_list:
             if child.id == -1:
-                continue
-            if child not in self.node_list:
-                print(f"child node with id {child.id} not in list. It is at {child.x}")
                 continue
             self.node_list.remove(child)
             self.coord_list.remove(list(child.x))
@@ -188,9 +183,9 @@ def random_config(tree, final_points, robot_state, check_goal=True, neighbourhoo
     p = random()                                                                            
     if check_goal and p <= constants.goal_prob:
         rand_node = Node(x = choice(final_points))                                                                                                                                                             
-    elif neighbourhood is not None and p <= constants.neigh_prob:
-        rand_choice = np.random.choice(neighbourhood)
-        rand_node = Node(x = rand_choice.x)
+    # elif neighbourhood is not None and p <= constants.neigh_prob:
+    #     rand_choice = np.random.choice(neighbourhood)
+    #     rand_node = Node(x = rand_choice.x)
     else:
         x_coord = round(uniform(0, constants.dimension_field[0]), 2)
         y_coord = round(uniform(0, constants.dimension_field[1]), 2)

@@ -34,7 +34,7 @@ def plot_forest(forest, path = None):
 
     plt.xlabel('x')
     plt.ylabel('y')
-    plt.title('RRF path')
+    plt.title('Dynamic Path Planner')
     plt.legend()
     plt.show()
 
@@ -115,9 +115,9 @@ def RRF(robot_state, end_y, type="path"):
             plot_forest(forest)
 
 
-        if path is not None:
-            path_list.append(path.copy())
-        tree_list.append(new_tree.coord_list.copy())
+        # if path is not None:
+        #     path_list.append(path.copy())
+        # tree_list.append(new_tree.coord_list.copy())
         robot_state += constants.robot_velocity
     return tree_list, path_list, time_array
 
@@ -194,9 +194,9 @@ def RRFsim(robot_state, forest):
 
 if __name__ == "__main__":
     n_test = 10
-    end_y = 1.8
-    avg_time_path = np.zeros(9)
-    avg_time_tree = np.zeros(9)
+    end_y = 0.9
+    avg_time_path = np.zeros(10)
+    avg_time_tree = np.zeros(10)
     steps = int(end_y / constants.robot_velocity[1]) + 1
 
     for i in range(n_test):
@@ -207,13 +207,13 @@ if __name__ == "__main__":
     avg_time_path = avg_time_path / n_test
 
     for i in range(n_test):
-        ic_timetest = np.array([0, 0, 0, 1, np.pi / 2])
+        ic_timetest = np.array([0, 0, 0, 1, np.pi / 2, 10])
         _1, _2, time_array_iter = RRF(ic_timetest, end_y, type="tree")
         avg_time_tree += np.array(time_array_iter)
-        print("path", time_array_iter)
+        print("tree", time_array_iter)
     avg_time_tree = avg_time_tree / n_test
 
-    y_coords = np.arange(0, 9, 1)
+    y_coords = np.array([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
     plt.plot(y_coords, avg_time_path, "-o", label="path")
     plt.plot(y_coords, avg_time_tree, "-o", label="tree")
     plt.xlabel("position at which path found")

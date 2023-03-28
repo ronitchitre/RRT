@@ -57,7 +57,7 @@ def plot_tree(tree, path):
 
     plt.xlabel('x')
     plt.ylabel('y')
-    plt.title('RRT path')
+    plt.title('RRT* path')
     plt.legend()
     plt.show()
 
@@ -84,7 +84,7 @@ def RRTsim(initial_node, final_points, power):
         if tree_lib.is_obstacle_free(parent_node, rand_node):
             tree.insert_node(parent_node, rand_node)
             k += 1
-            tree.rewire(neighbourhood, rand_node)
+            # tree.rewire(neighbourhood, rand_node)
             if reached_at_recharge(rand_node, power):
                 doRRT = False
                 path = tree.get_path(rand_node)
